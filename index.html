@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mod Studio - Universal Compiler Ecosystem</title>
-    <!-- Favicon Integration Core Link -->
     <link rel="icon" type="image/png" href="costume1 (24).png">
     
     <style>
@@ -181,17 +180,12 @@
 </head>
 <body>
 
-    <!-- ==========================================================================
-       STRUCTURE LAYER CODE LANGUAGE: HTML5 (HyperText Markup Language)
-       ========================================================================== -->
     <header class="mod-studio-header">
-        <!-- Logo and Branding Segment -->
         <a href="#" class="header-brand">
             <img src="costume1 (24).png" alt="Mod Studio Logo" class="header-logo">
             <div class="header-title">Mod<span>Studio</span></div>
         </a>
 
-        <!-- Multi-Language Engine Targeting Console Array -->
         <div class="engine-selector-wrapper">
             <span class="engine-label">Compiler Target:</span>
             <select class="dropdown-select" id="engineTarget" onchange="compileTheme()">
@@ -211,13 +205,11 @@
             </select>
         </div>
 
-        <!-- System Commands Output Link -->
         <nav class="header-nav">
             <button class="btn-action" onclick="downloadConfig()">Download Output</button>
         </nav>
     </header>
 
-    <!-- Main Output Terminal Interface Console Grid -->
     <main class="workspace-container">
         <div class="panel-info">
             <h2 id="displayTitle">Initializing Target Core...</h2>
@@ -235,160 +227,59 @@
 
     <script>
         /* ==========================================================================
-           STRUCTURE LAYER CODE LANGUAGE: ECMAScript / JavaScript (Vanilla JS ES6+)
-           ========================================================================== */
+            STRUCTURE LAYER CODE LANGUAGE: ECMAScript / JavaScript (Vanilla JS ES6+)
+            ========================================================================== */
         
-        /* 
-           DATA STRUCT LOGIC: Multi-Language Manifest Array Mapping Profiles
-           Contains valid code definitions for each explicit programming context.
+        /* DATA STRUCT LOGIC: Multi-Language Manifest Array Mapping Profiles
+            Contains valid code definitions for each explicit programming context.
         */
         const coreSourceManifest = {
             "scratch-addons": {
                 fileName: "scratch-addons-settings.json",
                 title: "Scratch Addons Extension Profile Configuration",
                 desc: "Outputs valid raw block configurations mapping pure black block fills, ink-black inputs, and bright Operators Green outlines.",
-                code: `{
-  "editor-theme3": {
-    "enabled": true,
-    "settings": {
-      "Pen-color": "10b981ff",
-      "_version": 4,
-      "comment-color": "ffffffff",
-      "control-color": "f97316ff",
-      "custom-color": "8b5cf6ff",
-      "data-color": "ef4444ff",
-      "data-lists-color": "b91c1cff",
-      "events-color": "f59e0bff",
-      "fillOpacity": 100,
-      "fillStyle": "colored",
-      "forums": true,
-      "input-color": "000000ff",
-      "looks-color": "a855f7ff",
-      "monitors": true,
-      "motion-color": "3b82f6ff",
-      "operators-color": "10b981ff",
-      "sa-color": "10b981ff",
-      "sensing-color": "06b6d4ff",
-      "sounds-color": "ec4899ff",
-      "strokeOpacity": 100,
-      "strokeStyle": "colored",
-      "text": "colorOnBlack"
-    }
-  }
-}`
+                code: `{\n  "editor-theme3": {\n    "enabled": true,\n    "settings": {\n      "Pen-color": "10b981ff",\n      "_version": 4,\n      "comment-color": "ffffffff",\n      "control-color": "f97316ff",\n      "custom-color": "8b5cf6ff",\n      "data-color": "ef4444ff",\n      "data-lists-color": "b91c1cff",\n      "events-color": "f59e0bff",\n      "fillOpacity": 100,\n      "fillStyle": "colored",\n      "forums": true,\n      "input-color": "000000ff",\n      "looks-color": "a855f7ff",\n      "monitors": true,\n      "motion-color": "3b82f6ff",\n      "operators-color": "10b981ff",\n      "sa-color": "10b981ff",\n      "sensing-color": "06b6d4ff",\n      "sounds-color": "ec4899ff",\n      "strokeOpacity": 100,\n      "strokeStyle": "colored",\n      "text": "colorOnBlack"\n    }\n  }\n}`
             },
             "turbowarp": {
                 fileName: "turbowarp-preferences.json",
                 title: "TurboWarp Desktop / Web Native Preference Array",
                 desc: "Compiles custom configuration variables targeting the TurboWarp engine to render deep black block canvas skins.",
-                code: `{
-  "tw-editor-colors": {
-    "enabled": true,
-    "version": 2,
-    "theme": "custom",
-    "variables": {
-      "blockFills": "000000",
-      "blockInputs": "000000",
-      "textFields": "ffffff",
-      "operatorAccent": "10b981",
-      "motionBorder": "3b82f6",
-      "looksBorder": "a855f7"
-    }
-  }
-}`
+                code: `{\n  "tw-editor-colors": {\n    "enabled": true,\n    "version": 2,\n    "theme": "custom",\n    "variables": {\n      "blockFills": "000000",\n      "blockInputs": "000000",\n      "textFields": "ffffff",\n      "operatorAccent": "10b981",\n      "motionBorder": "3b82f6",\n      "looksBorder": "a855f7"\n    }\n  }\n}`
             },
             "penguinmod": {
                 fileName: "penguinmod-wireframe.json",
                 title: "PenguinMod & CoreEngine Structural Layout Profile",
                 desc: "Assembles custom visual framework definitions optimized specifically for community block engine runtimes.",
-                code: `{
-  "penguinCustomThemes": {
-    "activeProfile": "ModStudioBlackout",
-    "blockStyle": "neon-wireframe",
-    "colors": {
-      "background": "000000",
-      "inputs": "000000",
-      "lines": "10b981"
-    }
-  }
-}`
+                code: `{\n  "penguinCustomThemes": {\n    "activeProfile": "ModStudioBlackout",\n    "blockStyle": "neon-wireframe",\n    "colors": {\n      "background": "000000",\n      "inputs": "000000",\n      "lines": "10b981"\n    }\n  }\n}`
             },
             "javascript": {
                 fileName: "modstudio-injector.js",
                 title: "JavaScript Direct Engine Script Injection",
                 desc: "Executes standard client-side DOM processing algorithms to force real-time styling mutations straight into browser memory paths.",
-                code: `// Mod Studio Core JavaScript Engine DOM Override 
-(function injectModStudio() {
-    console.log("Initializing Mod Studio Core Logic Injection Pipeline...");
-    const styleOverride = document.createElement('style');
-    styleOverride.id = 'mod-studio-blackout-core';
-    styleOverride.textContent = \`
-        .blocklyBlockCanvas, .blocklyMainBackground { fill: #000000 !important; }
-        .blocklyEditableText > rect { fill: #000000 !important; }
-        .blocklyFlyoutBackground { fill: #050505 !important; }
-    \`;
-    document.head.appendChild(styleOverride);
-    alert("Mod Studio Logic Hooks Successfully Stabilized.");
-})();`
+                code: `// Mod Studio Core JavaScript Engine DOM Override \n(function injectModStudio() {\n    console.log("Initializing Mod Studio Core Logic Injection Pipeline...");\n    const styleOverride = document.createElement('style');\n    styleOverride.id = 'mod-studio-blackout-core';\n    styleOverride.textContent = '\\n        .blocklyBlockCanvas, .blocklyMainBackground { fill: #000000 !important; }\\n        .blocklyEditableText > rect { fill: #000000 !important; }\\n        .blocklyFlyoutBackground { fill: #050505 !important; }\\n    ';\n    document.head.appendChild(styleOverride);\n    alert("Mod Studio Logic Hooks Successfully Stabilized.");\n})();`
             },
             "html5": {
                 fileName: "workspace-viewport.html",
                 title: "HTML5 Standalone Engine Viewport Interface",
                 desc: "Renders standard web application viewport structures containing secure cross-domain link containers.",
-                code: `<!-- HTML5 Framework Shell Node for Mod Studio Modules -->
-<div id="mod-studio-viewport" style="background:#000000; border:2px solid #035338; border-radius:8px;">
-    <iframe id="engine-canvas-frame" src="about:blank" style="width:100%; height:100%; border:none;">
-        <p>Fatal System Initialization Exception: Layout DOM Context Mismatch</p>
-    </iframe>
-</div>`
+                code: `\n<div id="mod-studio-viewport" style="background:#000000; border:2px solid #035338; border-radius:8px;">\n    <iframe id="engine-canvas-frame" src="about:blank" style="width:100%; height:100%; border:none;">\n        <p>Fatal System Initialization Exception: Layout DOM Context Mismatch</p>\n    </iframe>\n</div>`
             },
             "python": {
                 fileName: "profile_compiler.py",
                 title: "Python Data Engine Dictionary Structural Model",
                 desc: "Maps raw configuration data directly to standard Python multi-dimensional array structures for quick serialization processes.",
-                code: `# Mod Studio Engine Mapping Core Dictionary Definition
-mod_studio_config = {
-    'editor_profile': 'ModStudio_Blackout',
-    'parameters': {
-        'block_fill_color': '000000ff',
-        'block_input_color': '000000ff',
-        'operator_accent_hex': '10b981ff'
-    },
-    'runtime_status': True,
-    'version_index': 4.0
-}`
+                code: `# Mod Studio Engine Mapping Core Dictionary Definition\nmod_studio_config = {\n    'editor_profile': 'ModStudio_Blackout',\n    'parameters': {\n        'block_fill_color': '000000ff',\n        'block_input_color': '000000ff',\n        'operator_accent_hex': '10b981ff'\n    },\n    'runtime_status': True,\n    'version_index': 4.0\n}`
             },
             "cpp": {
                 fileName: "EnginePointer.cpp",
                 title: "C++ Low-Level Hex Allocation Core Pointer",
                 desc: "Executes systems-level standard memory terminal feedback logic handling absolute design reference streams.",
-                code: `// C++ Low-Level Hex String Generation Reference Allocation
-#include <iostream>
-#include <string>
-
-class ModStudioThemeCompiler {
-public:
-    std::string themeID = "ModStudio_Blackout";
-    std::string fillHex = "000000ff";
-    std::string inputHex = "000000ff";
-    
-    void printCoreSpecifications() {
-        std::cout << "[SYSTEM]: Mapped Engine State: " << themeID << "\\n";
-        std::cout << "[SYSTEM]: Allocated Block Hex Reference -> " << fillHex << "\\n";
-    }
-};
-
-int main() {
-    ModStudioThemeCompiler activeCore;
-    activeCore.printCoreSpecifications();
-    return 0;
-}`
+                code: `// C++ Low-Level Hex String Generation Reference Allocation\n#include <iostream>\n#include <string>\n\nclass ModStudioThemeCompiler {\npublic:\n    std::string themeID = "ModStudio_Blackout";\n    std::string fillHex = "000000ff";\n    std::string inputHex = "000000ff";\n    \n    void printCoreSpecifications() {\n        std::cout << "[SYSTEM]: Mapped Engine State: " << themeID << "\\\\n";\n        std::cout << "[SYSTEM]: Allocated Block Hex Reference -> " << fillHex << "\\\\n";\n    }\n};\n\nint main() {\n    ModStudioThemeCompiler activeCore;\n    activeCore.printCoreSpecifications();\n    return 0;\n}`
             }
         };
 
-        /* 
-           COMPILER CONTROLLER ENGINE LOGIC
-           Swaps and streams distinct language manifests seamlessly through a single interface layout module.
+        /* COMPILER CONTROLLER ENGINE LOGIC
+            Swaps and streams distinct language manifests seamlessly through a single interface layout module.
         */
         function compileTheme() {
             const currentSelection = document.getElementById("engineTarget").value;
@@ -403,8 +294,7 @@ int main() {
             document.getElementById("jsonContainer").innerText = targetProfile.code;
         }
 
-        /* 
-           CLIPBOARD COPYSYSTEM COMPONENT LOGIC
+        /* CLIPBOARD COPYSYSTEM COMPONENT LOGIC
         */
         function copyToClipboard() {
             const activeCodePayload = document.getElementById("jsonContainer").innerText;
@@ -413,8 +303,7 @@ int main() {
             });
         }
 
-        /* 
-           UNIVERSAL FILE BLOB DOWNSTREAM GENERATOR LOGIC
+        /* UNIVERSAL FILE BLOB DOWNSTREAM GENERATOR LOGIC
         */
         function downloadConfig() {
             const currentSelection = document.getElementById("engineTarget").value;
