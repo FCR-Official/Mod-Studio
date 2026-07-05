@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mod Studio - Universal Compiler Ecosystem</title>
+    <!-- Favicon Integration Core Link -->
+    <link rel="icon" type="image/png" href="costume1 (24).png">
+    
+    <style>
+        /* ==========================================================================
+           STRUCTURE LAYER CODE LANGUAGE: CSS3 (Cascading Style Sheets)
+           ========================================================================== */
+        :root {
+            --bg-black: #000000;
+            --panel-dark: #050505;
+            --panel-card: #0a0a0a;
+            --logo-dark-green: #035338;
+            --logo-dark-green-glow: rgba(3, 83, 56, 0.4);
+            --text-main: #ffffff;
+            --text-muted: #8e8e8e;
+            --syntax-key: #f43f5e;
+            --syntax-string: #e11d48;
+            --syntax-number: #38bdf8;
+            --syntax-boolean: #f59e0b;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-black);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        /* Mod Studio Top Navigation Layout */
+        .mod-studio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            background-color: var(--panel-dark);
+            border-bottom: 2px solid var(--logo-dark-green);
+            box-shadow: 0 4px 25px var(--logo-dark-green-glow);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .header-logo {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--logo-dark-green);
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            color: var(--text-main);
+        }
+
+        .header-title span {
+            color: var(--logo-dark-green);
+        }
+
+        /* Centralized Compiler Engine Selector Dropdown */
+        .engine-selector-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(3, 83, 56, 0.1);
+            border: 1px solid var(--logo-dark-green);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+        }
+
+        .engine-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--logo-dark-green);
+        }
+
+        .dropdown-select {
+            background: var(--bg-black);
+            color: var(--text-main);
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* Workspace Grid and Content Layout Panels */
+        .workspace-container {
+            max-width: 1000px;
+            margin: 3rem auto;
+            padding: 0 2rem;
+        }
+
+        .panel-info {
+            margin-bottom: 1.5rem;
+        }
+
+        .panel-info h2 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .panel-info p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .code-box-wrapper {
+            background-color: var(--panel-card);
+            border: 1px solid #1f1f1f;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+        }
+
+        .code-header {
+            background-color: var(--panel-dark);
+            padding: 0.75rem 1.2rem;
+            border-bottom: 1px solid #1f1f1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-name {
+            font-family: 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .btn-action {
+            background: transparent;
+            color: var(--text-main);
+            border: 1px solid var(--logo-dark-green);
+            padding: 0.4rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-action:hover {
+            background-color: var(--logo-dark-green);
+            box-shadow: 0 0 10px var(--logo-dark-green);
+        }
+
+        pre {
+            margin: 0;
+            padding: 1.5rem;
+            overflow-x: auto;
+            background: #000000;
+        }
+
+        code {
+            font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #10b981; /* Default Operator Base Glow */
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ==========================================================================
+       STRUCTURE LAYER CODE LANGUAGE: HTML5 (HyperText Markup Language)
+       ========================================================================== -->
+    <header class="mod-studio-header">
+        <!-- Logo and Branding Segment -->
+        <a href="#" class="header-brand">
+            <img src="costume1 (24).png" alt="Mod Studio Logo" class="header-logo">
+            <div class="header-title">Mod<span>Studio</span></div>
+        </a>
+
+        <!-- Multi-Language Engine Targeting Console Array -->
+        <div class="engine-selector-wrapper">
+            <span class="engine-label">Compiler Target:</span>
+            <select class="dropdown-select" id="engineTarget" onchange="compileTheme()">
+                <optgroup label="Visual Blocks & Addons Ecosystem">
+                    <option value="scratch-addons">Scratch Addons Extension Framework (.json)</option>
+                    <option value="turbowarp">TurboWarp Custom Preferences Structure (.json)</option>
+                    <option value="penguinmod">PenguinMod Wireframe Profile Engine (.json)</option>
+                </optgroup>
+                <optgroup label="Web & Interface Architecture Scripts">
+                    <option value="javascript">JavaScript Script-Injection Build (.js)</option>
+                    <option value="html5">HTML5 Integrated Canvas Node (.html)</option>
+                </optgroup>
+                <optgroup label="High-Level Native Compilers">
+                    <option value="python">Python Data Mapping Dictionary (.py)</option>
+                    <option value="cpp">C++ Direct Memory Logic Pointer (.cpp)</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <!-- System Commands Output Link -->
+        <nav class="header-nav">
+            <button class="btn-action" onclick="downloadConfig()">Download Output</button>
+        </nav>
+    </header>
+
+    <!-- Main Output Terminal Interface Console Grid -->
+    <main class="workspace-container">
+        <div class="panel-info">
+            <h2 id="displayTitle">Initializing Target Core...</h2>
+            <p id="displayDesc">Parsing internal configuration definitions directly to memory block sheets.</p>
+        </div>
+
+        <div class="code-box-wrapper">
+            <div class="code-header">
+                <span class="file-name" id="fileNameDisplay">manifest.json</span>
+                <button class="btn-action" onclick="copyToClipboard()">Copy Payload</button>
+            </div>
+            <pre><code id="jsonContainer">Executing environment initialization parameters...</code></pre>
+        </div>
+    </main>
+
+    <script>
+        /* ==========================================================================
+           STRUCTURE LAYER CODE LANGUAGE: ECMAScript / JavaScript (Vanilla JS ES6+)
+           ========================================================================== */
+        
+        /* 
+           DATA STRUCT LOGIC: Multi-Language Manifest Array Mapping Profiles
+           Contains valid code definitions for each explicit programming context.
+        */
+        const coreSourceManifest = {
+            "scratch-addons": {
+                fileName: "scratch-addons-settings.json",
+                title: "Scratch Addons Extension Profile Configuration",
+                desc: "Outputs valid raw block configurations mapping pure black block fills, ink-black inputs, and bright Operators Green outlines.",
+                code: `{
+  "editor-theme3": {
+    "enabled": true,
+    "settings": {
+      "Pen-color": "10b981ff",
+      "_version": 4,
+      "comment-color": "ffffffff",
+      "control-color": "f97316ff",
+      "custom-color": "8b5cf6ff",
+      "data-color": "ef4444ff",
+      "data-lists-color": "b91c1cff",
+      "events-color": "f59e0bff",
+      "fillOpacity": 100,
+      "fillStyle": "colored",
+      "forums": true,
+      "input-color": "000000ff",
+      "looks-color": "a855f7ff",
+      "monitors": true,
+      "motion-color": "3b82f6ff",
+      "operators-color": "10b981ff",
+      "sa-color": "10b981ff",
+      "sensing-color": "06b6d4ff",
+      "sounds-color": "ec4899ff",
+      "strokeOpacity": 100,
+      "strokeStyle": "colored",
+      "text": "colorOnBlack"
+    }
+  }
+}`
+            },
+            "turbowarp": {
+                fileName: "turbowarp-preferences.json",
+                title: "TurboWarp Desktop / Web Native Preference Array",
+                desc: "Compiles custom configuration variables targeting the TurboWarp engine to render deep black block canvas skins.",
+                code: `{
+  "tw-editor-colors": {
+    "enabled": true,
+    "version": 2,
+    "theme": "custom",
+    "variables": {
+      "blockFills": "000000",
+      "blockInputs": "000000",
+      "textFields": "ffffff",
+      "operatorAccent": "10b981",
+      "motionBorder": "3b82f6",
+      "looksBorder": "a855f7"
+    }
+  }
+}`
+            },
+            "penguinmod": {
+                fileName: "penguinmod-wireframe.json",
+                title: "PenguinMod & CoreEngine Structural Layout Profile",
+                desc: "Assembles custom visual framework definitions optimized specifically for community block engine runtimes.",
+                code: `{
+  "penguinCustomThemes": {
+    "activeProfile": "ModStudioBlackout",
+    "blockStyle": "neon-wireframe",
+    "colors": {
+      "background": "000000",
+      "inputs": "000000",
+      "lines": "10b981"
+    }
+  }
+}`
+            },
+            "javascript": {
+                fileName: "modstudio-injector.js",
+                title: "JavaScript Direct Engine Script Injection",
+                desc: "Executes standard client-side DOM processing algorithms to force real-time styling mutations straight into browser memory paths.",
+                code: `// Mod Studio Core JavaScript Engine DOM Override 
+(function injectModStudio() {
+    console.log("Initializing Mod Studio Core Logic Injection Pipeline...");
+    const styleOverride = document.createElement('style');
+    styleOverride.id = 'mod-studio-blackout-core';
+    styleOverride.textContent = \`
+        .blocklyBlockCanvas, .blocklyMainBackground { fill: #000000 !important; }
+        .blocklyEditableText > rect { fill: #000000 !important; }
+        .blocklyFlyoutBackground { fill: #050505 !important; }
+    \`;
+    document.head.appendChild(styleOverride);
+    alert("Mod Studio Logic Hooks Successfully Stabilized.");
+})();`
+            },
+            "html5": {
+                fileName: "workspace-viewport.html",
+                title: "HTML5 Standalone Engine Viewport Interface",
+                desc: "Renders standard web application viewport structures containing secure cross-domain link containers.",
+                code: `<!-- HTML5 Framework Shell Node for Mod Studio Modules -->
+<div id="mod-studio-viewport" style="background:#000000; border:2px solid #035338; border-radius:8px;">
+    <iframe id="engine-canvas-frame" src="about:blank" style="width:100%; height:100%; border:none;">
+        <p>Fatal System Initialization Exception: Layout DOM Context Mismatch</p>
+    </iframe>
+</div>`
+            },
+            "python": {
+                fileName: "profile_compiler.py",
+                title: "Python Data Engine Dictionary Structural Model",
+                desc: "Maps raw configuration data directly to standard Python multi-dimensional array structures for quick serialization processes.",
+                code: `# Mod Studio Engine Mapping Core Dictionary Definition
+mod_studio_config = {
+    'editor_profile': 'ModStudio_Blackout',
+    'parameters': {
+        'block_fill_color': '000000ff',
+        'block_input_color': '000000ff',
+        'operator_accent_hex': '10b981ff'
+    },
+    'runtime_status': True,
+    'version_index': 4.0
+}`
+            },
+            "cpp": {
+                fileName: "EnginePointer.cpp",
+                title: "C++ Low-Level Hex Allocation Core Pointer",
+                desc: "Executes systems-level standard memory terminal feedback logic handling absolute design reference streams.",
+                code: `// C++ Low-Level Hex String Generation Reference Allocation
+#include <iostream>
+#include <string>
+
+class ModStudioThemeCompiler {
+public:
+    std::string themeID = "ModStudio_Blackout";
+    std::string fillHex = "000000ff";
+    std::string inputHex = "000000ff";
+    
+    void printCoreSpecifications() {
+        std::cout << "[SYSTEM]: Mapped Engine State: " << themeID << "\\n";
+        std::cout << "[SYSTEM]: Allocated Block Hex Reference -> " << fillHex << "\\n";
+    }
+};
+
+int main() {
+    ModStudioThemeCompiler activeCore;
+    activeCore.printCoreSpecifications();
+    return 0;
+}`
+            }
+        };
+
+        /* 
+           COMPILER CONTROLLER ENGINE LOGIC
+           Swaps and streams distinct language manifests seamlessly through a single interface layout module.
+        */
+        function compileTheme() {
+            const currentSelection = document.getElementById("engineTarget").value;
+            const targetProfile = coreSourceManifest[currentSelection];
+
+            // Render descriptive metadata blocks to view components dynamically
+            document.getElementById("displayTitle").innerText = targetProfile.title;
+            document.getElementById("displayDesc").innerText = targetProfile.desc;
+            document.getElementById("fileNameDisplay").innerText = targetProfile.fileName;
+
+            // Stream parsed structural strings to code box targets safely
+            document.getElementById("jsonContainer").innerText = targetProfile.code;
+        }
+
+        /* 
+           CLIPBOARD COPYSYSTEM COMPONENT LOGIC
+        */
+        function copyToClipboard() {
+            const activeCodePayload = document.getElementById("jsonContainer").innerText;
+            navigator.clipboard.writeText(activeCodePayload).then(() => {
+                alert("🎯 Mod Studio Payload cloned securely to clipboard memory buffer!");
+            });
+        }
+
+        /* 
+           UNIVERSAL FILE BLOB DOWNSTREAM GENERATOR LOGIC
+        */
+        function downloadConfig() {
+            const currentSelection = document.getElementById("engineTarget").value;
+            const targetProfile = coreSourceManifest[currentSelection];
+            
+            // Generate clean memory download link allocation anchors safely
+            const dataStreamBuffer = "data:text/plain;charset=utf-8," + encodeURIComponent(targetProfile.code);
+            const downloadLinkAnchor = document.createElement('a');
+            
+            downloadLinkAnchor.setAttribute("href", dataStreamBuffer);
+            downloadLinkAnchor.setAttribute("download", targetProfile.fileName);
+            document.body.appendChild(downloadLinkAnchor);
+            
+            downloadLinkAnchor.click(); // Trigger browser downstream download block event
+            downloadLinkAnchor.remove(); // Evict element instantly out of live layout tree
+        }
+
+        // Initialize Runtime Engine on viewport stabilization
+        window.onload = function() {
+            compileTheme();
+        };
+    </script>
+</body>
+</html>
