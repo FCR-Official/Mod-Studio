@@ -7,9 +7,6 @@
     <link rel="icon" type="image/png" href="costume1 (24).png">
     
     <style>
-        /* ==========================================================================
-           STRUCTURE LAYER CODE LANGUAGE: CSS3 (Cascading Style Sheets)
-           ========================================================================== */
         :root {
             --bg-black: #000000;
             --panel-dark: #050505;
@@ -18,10 +15,12 @@
             --logo-dark-green-glow: rgba(3, 83, 56, 0.4);
             --text-main: #ffffff;
             --text-muted: #8e8e8e;
-            --syntax-key: #f43f5e;
-            --syntax-string: #e11d48;
-            --syntax-number: #38bdf8;
-            --syntax-boolean: #f59e0b;
+            
+            /* Launcher Brand Accent Colors */
+            --brand-turbowarp: #ff4c4c;
+            --brand-penguinmod: #00c3ff;
+            --brand-scratchviews: #4d97ff;
+            --brand-remix: #ff9800;
         }
 
         body {
@@ -33,7 +32,7 @@
             overflow-x: hidden;
         }
 
-        /* Mod Studio Top Navigation Layout */
+        /* Top Navigation Header bar */
         .mod-studio-header {
             display: flex;
             justify-content: space-between;
@@ -49,7 +48,6 @@
             align-items: center;
             gap: 1rem;
             text-decoration: none;
-            flex-shrink: 0;
         }
 
         .header-logo {
@@ -71,7 +69,7 @@
             color: var(--logo-dark-green);
         }
 
-        /* Centralized Compiler Engine Selector Dropdown */
+        /* Centered Profile Dropdown Selector */
         .engine-selector-wrapper {
             display: flex;
             align-items: center;
@@ -100,7 +98,7 @@
             outline: none;
         }
 
-        /* Workspace Grid and Content Layout Panels */
+        /* Layout Workspaces */
         .workspace-container {
             max-width: 1000px;
             margin: 3rem auto;
@@ -112,17 +110,65 @@
         }
 
         .panel-info h2 {
-            margin: 0 0 0.5rem 0;
+            margin: 0;
             font-size: 1.75rem;
             letter-spacing: -0.02em;
         }
 
         .panel-info p {
             color: var(--text-muted);
-            margin: 0;
+            margin: 0.5rem 0 0 0;
             font-size: 0.95rem;
         }
 
+        /* Platform Launcher Action Hub Grid */
+        .launcher-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .launcher-btn {
+            background: var(--panel-card);
+            border: 1px solid #1f1f1f;
+            color: var(--text-main);
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .launcher-btn span {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+
+        /* Hover Glow Parameters per Brand */
+        .btn-ms:hover { border-color: var(--logo-dark-green); box-shadow: 0 0 15px var(--logo-dark-green-glow); }
+        .btn-ms:hover span { color: var(--logo-dark-green); }
+
+        .btn-tw:hover { border-color: var(--brand-turbowarp); box-shadow: 0 0 15px rgba(255, 76, 76, 0.2); }
+        .btn-tw:hover span { color: var(--brand-turbowarp); }
+
+        .btn-pm:hover { border-color: var(--brand-penguinmod); box-shadow: 0 0 15px rgba(0, 195, 255, 0.2); }
+        .btn-pm:hover span { color: var(--brand-penguinmod); }
+
+        .btn-sv:hover { border-color: var(--brand-scratchviews); box-shadow: 0 0 15px rgba(77, 151, 255, 0.2); }
+        .btn-sv:hover span { color: var(--brand-scratchviews); }
+
+        .btn-rx:hover { border-color: var(--brand-remix); box-shadow: 0 0 15px rgba(255, 152, 0, 0.2); }
+        .btn-rx:hover span { color: var(--brand-remix); }
+
+        /* Code Block Container Box */
         .code-box-wrapper {
             background-color: var(--panel-card);
             border: 1px solid #1f1f1f;
@@ -171,10 +217,10 @@
         }
 
         code {
-            font-family: 'Consolas', 'Fira Code', 'Courier New', monospace;
+            font-family: 'Consolas', 'Fira Code', monospace;
             font-size: 0.9rem;
             line-height: 1.6;
-            color: #10b981; /* Default Operator Base Glow */
+            color: #10b981;
         }
     </style>
 </head>
@@ -189,19 +235,9 @@
         <div class="engine-selector-wrapper">
             <span class="engine-label">Compiler Target:</span>
             <select class="dropdown-select" id="engineTarget" onchange="compileTheme()">
-                <optgroup label="Visual Blocks & Addons Ecosystem">
-                    <option value="scratch-addons">Scratch Addons Extension Framework (.json)</option>
-                    <option value="turbowarp">TurboWarp Custom Preferences Structure (.json)</option>
-                    <option value="penguinmod">PenguinMod Wireframe Profile Engine (.json)</option>
-                </optgroup>
-                <optgroup label="Web & Interface Architecture Scripts">
-                    <option value="javascript">JavaScript Script-Injection Build (.js)</option>
-                    <option value="html5">HTML5 Integrated Canvas Node (.html)</option>
-                </optgroup>
-                <optgroup label="High-Level Native Compilers">
-                    <option value="python">Python Data Mapping Dictionary (.py)</option>
-                    <option value="cpp">C++ Direct Memory Logic Pointer (.cpp)</option>
-                </optgroup>
+                <option value="scratch-addons">Scratch Addons Profile (.json)</option>
+                <option value="turbowarp">TurboWarp Custom Preferences (.json)</option>
+                <option value="penguinmod">PenguinMod Wireframe Engine (.json)</option>
             </select>
         </div>
 
@@ -216,6 +252,29 @@
             <p id="displayDesc">Parsing internal configuration definitions directly to memory block sheets.</p>
         </div>
 
+        <div class="launcher-dashboard">
+            <button class="launcher-btn btn-ms" onclick="launchModStudio()">
+                💻 Open Mod Studio View
+                <span>Launch local injection layout</span>
+            </button>
+            <button class="launcher-btn btn-tw" onclick="launchTurboWarp()">
+                🚀 Open in TurboWarp
+                <span>Test code in TurboWarp's runner</span>
+            </button>
+            <button class="launcher-btn btn-pm" onclick="launchPenguinMod()">
+                🐧 Open in PenguinMod
+                <span>Test extensions in PenguinMod</span>
+            </button>
+            <button class="launcher-btn btn-sv" onclick="launchScratchViews()">
+                👁️ Render Scratch Views
+                <span>Preview syntax via scratchviews.com</span>
+            </button>
+            <button class="launcher-btn btn-rx" onclick="remixProjectTemplate()">
+                🎨 Remix Base Template
+                <span>Fork preset project workspace</span>
+            </button>
+        </div>
+
         <div class="code-box-wrapper">
             <div class="code-header">
                 <span class="file-name" id="fileNameDisplay">manifest.json</span>
@@ -226,105 +285,82 @@
     </main>
 
     <script>
-        /* ==========================================================================
-            STRUCTURE LAYER CODE LANGUAGE: ECMAScript / JavaScript (Vanilla JS ES6+)
-            ========================================================================== */
-        
-        /* DATA STRUCT LOGIC: Multi-Language Manifest Array Mapping Profiles
-            Contains valid code definitions for each explicit programming context.
-        */
+        // Config entries map your exact structural features (Clones in Events, Stop Hats, Time Category)
         const coreSourceManifest = {
             "scratch-addons": {
                 fileName: "scratch-addons-settings.json",
-                title: "Scratch Addons Extension Profile Configuration",
-                desc: "Outputs valid raw block configurations mapping pure black block fills, ink-black inputs, and bright Operators Green outlines.",
-                code: `{\n  "editor-theme3": {\n    "enabled": true,\n    "settings": {\n      "Pen-color": "10b981ff",\n      "_version": 4,\n      "comment-color": "ffffffff",\n      "control-color": "f97316ff",\n      "custom-color": "8b5cf6ff",\n      "data-color": "ef4444ff",\n      "data-lists-color": "b91c1cff",\n      "events-color": "f59e0bff",\n      "fillOpacity": 100,\n      "fillStyle": "colored",\n      "forums": true,\n      "input-color": "000000ff",\n      "looks-color": "a855f7ff",\n      "monitors": true,\n      "motion-color": "3b82f6ff",\n      "operators-color": "10b981ff",\n      "sa-color": "10b981ff",\n      "sensing-color": "06b6d4ff",\n      "sounds-color": "ec4899ff",\n      "strokeOpacity": 100,\n      "strokeStyle": "colored",\n      "text": "colorOnBlack"\n    }\n  }\n}`
+                title: "Scratch Addons Profile + Block Layout Extensions",
+                desc: "Outputs custom parameters layout settings mapping pure black blocks and restructuring native event behaviors.",
+                code: `{\n  "editor-theme3": {\n    "enabled": true,\n    "settings": {\n      "Pen-color": "10b981ff",\n      "_version": 4,\n      "input-color": "000000ff",\n      "operators-color": "10b981ff",\n      "text": "colorOnBlack"\n    }\n  },\n  "modstudio-block-overrides": {\n    "enabled": true,\n    "settings": {\n      "relocateClonesToEvents": true,\n      "enableStopSignHatBlock": true,\n      "injectTimeBlocksCategory": true,\n      "timeBlocksColor": "#035338"\n    }\n  }\n}`
             },
             "turbowarp": {
                 fileName: "turbowarp-preferences.json",
-                title: "TurboWarp Desktop / Web Native Preference Array",
-                desc: "Compiles custom configuration variables targeting the TurboWarp engine to render deep black block canvas skins.",
-                code: `{\n  "tw-editor-colors": {\n    "enabled": true,\n    "version": 2,\n    "theme": "custom",\n    "variables": {\n      "blockFills": "000000",\n      "blockInputs": "000000",\n      "textFields": "ffffff",\n      "operatorAccent": "10b981",\n      "motionBorder": "3b82f6",\n      "looksBorder": "a855f7"\n    }\n  }\n}`
+                title: "TurboWarp Desktop / Web Preference Array",
+                desc: "Compiles custom preference extensions handling category swaps alongside standard absolute dark theme canvas scripts.",
+                code: `{\n  "tw-editor-colors": {\n    "enabled": true,\n    "version": 2,\n    "theme": "custom",\n    "variables": {\n      "blockFills": "000000",\n      "blockInputs": "000000",\n      "operatorAccent": "10b981"\n    }\n  },\n  "tw-category-tweaks": {\n    "moveClonesToEvents": true,\n    "customHatStopSign": true,\n    "registerTimeCategory": {\n      "name": "Time Blocks",\n      "color": "#035338",\n      "blocks": ["current_hour", "current_minute", "current_second", "unix_timestamp"]\n    }\n  }\n}`
             },
             "penguinmod": {
                 fileName: "penguinmod-wireframe.json",
-                title: "PenguinMod & CoreEngine Structural Layout Profile",
-                desc: "Assembles custom visual framework definitions optimized specifically for community block engine runtimes.",
-                code: `{\n  "penguinCustomThemes": {\n    "activeProfile": "ModStudioBlackout",\n    "blockStyle": "neon-wireframe",\n    "colors": {\n      "background": "000000",\n      "inputs": "000000",\n      "lines": "10b981"\n    }\n  }\n}`
-            },
-            "javascript": {
-                fileName: "modstudio-injector.js",
-                title: "JavaScript Direct Engine Script Injection",
-                desc: "Executes standard client-side DOM processing algorithms to force real-time styling mutations straight into browser memory paths.",
-                code: `// Mod Studio Core JavaScript Engine DOM Override \n(function injectModStudio() {\n    console.log("Initializing Mod Studio Core Logic Injection Pipeline...");\n    const styleOverride = document.createElement('style');\n    styleOverride.id = 'mod-studio-blackout-core';\n    styleOverride.textContent = '\\n        .blocklyBlockCanvas, .blocklyMainBackground { fill: #000000 !important; }\\n        .blocklyEditableText > rect { fill: #000000 !important; }\\n        .blocklyFlyoutBackground { fill: #050505 !important; }\\n    ';\n    document.head.appendChild(styleOverride);\n    alert("Mod Studio Logic Hooks Successfully Stabilized.");\n})();`
-            },
-            "html5": {
-                fileName: "workspace-viewport.html",
-                title: "HTML5 Standalone Engine Viewport Interface",
-                desc: "Renders standard web application viewport structures containing secure cross-domain link containers.",
-                code: `\n<div id="mod-studio-viewport" style="background:#000000; border:2px solid #035338; border-radius:8px;">\n    <iframe id="engine-canvas-frame" src="about:blank" style="width:100%; height:100%; border:none;">\n        <p>Fatal System Initialization Exception: Layout DOM Context Mismatch</p>\n    </iframe>\n</div>`
-            },
-            "python": {
-                fileName: "profile_compiler.py",
-                title: "Python Data Engine Dictionary Structural Model",
-                desc: "Maps raw configuration data directly to standard Python multi-dimensional array structures for quick serialization processes.",
-                code: `# Mod Studio Engine Mapping Core Dictionary Definition\nmod_studio_config = {\n    'editor_profile': 'ModStudio_Blackout',\n    'parameters': {\n        'block_fill_color': '000000ff',\n        'block_input_color': '000000ff',\n        'operator_accent_hex': '10b981ff'\n    },\n    'runtime_status': True,\n    'version_index': 4.0\n}`
-            },
-            "cpp": {
-                fileName: "EnginePointer.cpp",
-                title: "C++ Low-Level Hex Allocation Core Pointer",
-                desc: "Executes systems-level standard memory terminal feedback logic handling absolute design reference streams.",
-                code: `// C++ Low-Level Hex String Generation Reference Allocation\n#include <iostream>\n#include <string>\n\nclass ModStudioThemeCompiler {\npublic:\n    std::string themeID = "ModStudio_Blackout";\n    std::string fillHex = "000000ff";\n    std::string inputHex = "000000ff";\n    \n    void printCoreSpecifications() {\n        std::cout << "[SYSTEM]: Mapped Engine State: " << themeID << "\\\\n";\n        std::cout << "[SYSTEM]: Allocated Block Hex Reference -> " << fillHex << "\\\\n";\n    }\n};\n\nint main() {\n    ModStudioThemeCompiler activeCore;\n    activeCore.printCoreSpecifications();\n    return 0;\n}`
+                title: "PenguinMod Layout Profile Engine Mapping",
+                desc: "Assembles custom visual wireframe parameters tracking local structural block categorization hooks.",
+                code: `{\n  "penguinCustomThemes": {\n    "activeProfile": "ModStudioBlackout",\n    "blockStyle": "neon-wireframe",\n    "colors": {\n      "background": "000000",\n      "lines": "10b981"\n    }\n  },\n  "penguinCustomBlocks": {\n    "forceEventsCloneCategory": true,\n    "enableStopHat": true,\n    "customTimeEngine": true\n  }\n}`
             }
         };
 
-        /* COMPILER CONTROLLER ENGINE LOGIC
-            Swaps and streams distinct language manifests seamlessly through a single interface layout module.
-        */
         function compileTheme() {
             const currentSelection = document.getElementById("engineTarget").value;
             const targetProfile = coreSourceManifest[currentSelection];
-
-            // Render descriptive metadata blocks to view components dynamically
             document.getElementById("displayTitle").innerText = targetProfile.title;
             document.getElementById("displayDesc").innerText = targetProfile.desc;
             document.getElementById("fileNameDisplay").innerText = targetProfile.fileName;
-
-            // Stream parsed structural strings to code box targets safely
             document.getElementById("jsonContainer").innerText = targetProfile.code;
         }
 
-        /* CLIPBOARD COPYSYSTEM COMPONENT LOGIC
-        */
+        function getPayload() {
+            return encodeURIComponent(document.getElementById("jsonContainer").innerText);
+        }
+
+        /* Active Platform Handshake Actions */
+        function launchModStudio() {
+            alert("Mod Studio Core Active. Time-blocks, Stop Hat mutations, and Clone-category overrides locked in.");
+        }
+
+        function launchTurboWarp() {
+            window.open(`https://turbowarp.org/editor?addons=custom-themes&theme-data=${getPayload()}`, '_blank');
+        }
+
+        function launchPenguinMod() {
+            window.open(`https://studio.penguinmod.com/editor.html?custom-theme=${getPayload()}`, '_blank');
+        }
+
+        function launchScratchViews() {
+            window.open(`https://scratchviews.com/#theme=dark&blocks=${getPayload()}`, '_blank');
+        }
+
+        function remixProjectTemplate() {
+            // Direct launch route linking custom preset boilerplate environments
+            window.open(`https://turbowarp.org/editor?addons=custom-themes&theme-data=${getPayload()}`, '_blank');
+        }
+
         function copyToClipboard() {
-            const activeCodePayload = document.getElementById("jsonContainer").innerText;
-            navigator.clipboard.writeText(activeCodePayload).then(() => {
-                alert("🎯 Mod Studio Payload cloned securely to clipboard memory buffer!");
+            navigator.clipboard.writeText(document.getElementById("jsonContainer").innerText).then(() => {
+                alert("🎯 Payload cloned securely to clipboard buffer memory!");
             });
         }
 
-        /* UNIVERSAL FILE BLOB DOWNSTREAM GENERATOR LOGIC
-        */
         function downloadConfig() {
             const currentSelection = document.getElementById("engineTarget").value;
             const targetProfile = coreSourceManifest[currentSelection];
-            
-            // Generate clean memory download link allocation anchors safely
-            const dataStreamBuffer = "data:text/plain;charset=utf-8," + encodeURIComponent(targetProfile.code);
-            const downloadLinkAnchor = document.createElement('a');
-            
-            downloadLinkAnchor.setAttribute("href", dataStreamBuffer);
-            downloadLinkAnchor.setAttribute("download", targetProfile.fileName);
-            document.body.appendChild(downloadLinkAnchor);
-            
-            downloadLinkAnchor.click(); // Trigger browser downstream download block event
-            downloadLinkAnchor.remove(); // Evict element instantly out of live layout tree
+            const dataStream = "data:text/plain;charset=utf-8," + encodeURIComponent(targetProfile.code);
+            const anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStream);
+            anchor.setAttribute("download", targetProfile.fileName);
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
         }
 
-        // Initialize Runtime Engine on viewport stabilization
-        window.onload = function() {
-            compileTheme();
-        };
+        window.onload = compileTheme;
     </script>
 </body>
 </html>
