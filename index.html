@@ -3,20 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mod Studio - Universal Compiler Ecosystem</title>
+    <title>Mod Studio Ecosystem</title>
     <link rel="icon" type="image/png" href="costume1 (24).png">
-    
     <style>
         :root {
             --bg-black: #000000;
-            --panel-dark: #050505;
-            --panel-card: #0a0a0a;
-            --logo-dark-green: #035338;
-            --logo-dark-green-glow: rgba(3, 83, 56, 0.4);
+            --panel-dark: #09090b;
+            --panel-card: #18181b;
             --text-main: #ffffff;
-            --text-muted: #8e8e8e;
-            
-            /* Dynamic accent handled by runtime javascript */
+            --text-muted: #a1a1aa;
+            /* Dynamic Accent Color selected by the user */
             --user-accent: #10b981;
         }
 
@@ -26,40 +22,65 @@
             background-color: var(--bg-black);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: var(--text-main);
+            overflow-x: hidden;
         }
 
-        .mod-studio-header {
+        /* Ecosystem Mode Switcher Header */
+        .eco-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.75rem 2rem;
+            padding: 1rem 2rem;
             background-color: var(--panel-dark);
-            border-bottom: 2px solid var(--logo-dark-green);
+            border-bottom: 2px solid var(--user-accent);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
         }
 
-        .header-brand { display: flex; align-items: center; gap: 1rem; text-decoration: none; }
-        .header-logo { width: 45px; height: 45px; object-fit: contain; border-radius: 50%; }
-        .header-title { font-size: 1.5rem; font-weight: 700; color: var(--text-main); }
-        .header-title span { color: var(--logo-dark-green); }
+        .tabs-container {
+            display: flex;
+            gap: 1rem;
+        }
 
-        .workspace-container {
-            max-width: 1100px;
+        .tab-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid #27272a;
+            padding: 0.6rem 1.2rem;
+            font-weight: 700;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn.active {
+            background: var(--user-accent);
+            color: #000000;
+            border-color: var(--user-accent);
+        }
+
+        /* Main Dynamic Workspace containers */
+        .workspace-view {
+            display: none;
+            max-width: 1200px;
             margin: 2rem auto;
-            padding: 0 2rem;
+            padding: 0 1.5rem;
+        }
+
+        .workspace-view.active {
             display: grid;
-            grid-template-columns: 320px 1fr;
+            grid-template-columns: 350px 1fr;
             gap: 2rem;
         }
 
-        /* Customizer Tool Panel Styling */
-        .control-panel {
-            background: var(--panel-card);
-            border: 1px solid #1f1f1f;
-            border-radius: 8px;
+        /* Sidebar Panels */
+        .sidebar-panel {
+            background-color: var(--panel-dark);
+            border: 1px solid #27272a;
+            border-radius: 12px;
             padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1.5rem;
         }
 
         .control-group {
@@ -69,176 +90,273 @@
         }
 
         .control-group label {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            color: var(--text-muted);
             text-transform: uppercase;
+            color: var(--text-muted);
         }
 
-        .color-picker-wrapper {
+        .color-picker-row {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
             background: #000;
             padding: 0.5rem;
             border-radius: 6px;
-            border: 1px solid #222;
+            border: 1px solid #27272a;
         }
 
         input[type="color"] {
             border: none;
-            background: none;
+            background: transparent;
             width: 40px;
             height: 40px;
             cursor: pointer;
         }
 
         .text-input {
-            background: transparent;
-            border: none;
+            background: #000;
+            border: 1px solid #27272a;
             color: #fff;
-            font-family: monospace;
-            font-size: 0.9rem;
-            width: 100%;
+            padding: 0.6rem;
+            border-radius: 6px;
             outline: none;
+            width: 100%;
+            box-sizing: border-box;
         }
 
-        .launcher-btn {
-            background: #050505;
-            border: 1px solid var(--logo-dark-green);
-            color: var(--text-main);
+        /* Grid Platform Matrix Buttons */
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .platform-btn {
+            background: var(--panel-card);
+            border: 1px solid #27272a;
+            color: #fff;
             padding: 0.75rem;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s ease;
             text-align: center;
+            transition: all 0.2s ease;
         }
-        .launcher-btn:hover { background: var(--logo-dark-green); }
 
-        .code-box-wrapper {
-            background-color: var(--panel-card);
-            border: 1px solid #1f1f1f;
-            border-radius: 8px;
-            overflow: hidden;
+        .platform-btn:hover {
+            border-color: var(--user-accent);
+        }
+
+        /* Dynamic Preview Board */
+        .preview-board {
+            background-color: var(--panel-dark);
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
+            gap: 1.5rem;
+            position: relative;
         }
 
-        .code-header {
-            background-color: var(--panel-dark);
-            padding: 0.75rem 1.2rem;
-            border-bottom: 1px solid #1f1f1f;
+        /* Age Mode Banners */
+        .age-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .badge-kids { background-color: #eab308; color: #000; }
+        .badge-adult { background-color: var(--user-accent); color: #000; }
+
+        /* Mock PenguinMod Blocks Wrapper */
+        .mock-blockly-canvas {
+            background: #000;
+            border: 2px dashed #27272a;
+            border-radius: 8px;
+            padding: 2rem;
+            min-height: 250px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        pre { margin: 0; padding: 1.5rem; background: #000000; overflow-x: auto; flex-grow: 1; }
-        code { font-family: 'Consolas', monospace; color: var(--user-accent); font-size: 0.9rem; }
-        .btn-action { background: transparent; color: #fff; border: 1px solid var(--logo-dark-green); padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-weight: 600; }
+        .mock-block {
+            background: #000000;
+            border: 2px solid var(--user-accent);
+            padding: 0.75rem 1.2rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.9rem;
+            width: fit-content;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .mock-block.hat {
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
     </style>
 </head>
 <body>
 
-    <header class="mod-studio-header">
-        <a href="#" class="header-brand">
-            <img src="costume1 (24).png" alt="Logo" class="header-logo">
-            <div class="header-title">Mod<span>Studio</span> Live</div>
-        </a>
-        <button class="btn-action" onclick="downloadConfig()">Download JSON</button>
+    <header class="eco-header">
+        <div class="tabs-container">
+            <button class="tab-btn active" id="btnLive" onclick="switchView('live')">💻 Mod Studio Live</button>
+            <button class="tab-btn" id="btnStudioMod" onclick="switchView('studio-mod')">🐧 Studio Mod (PenguinMod Fork)</button>
+        </div>
+        <div style="font-weight: bold; font-size: 1.2rem;">Mod<span style="color: var(--user-accent)">Studio</span> Ecosystem</div>
     </header>
 
-    <main class="workspace-container">
-        <section class="control-panel">
-            <h3>🎨 Design Workspace</h3>
-            <hr style="border: 0; border-top: 1px solid #1f1f1f; margin: 0;">
+    <main class="workspace-view active" id="viewLive">
+        <section class="sidebar-panel">
+            <h3>🎛️ Live Integration Dashboard</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Simultaneously review analytics and launch developer hubs side-by-side.</p>
             
             <div class="control-group">
-                <label>Main Accent (Operators/Time)</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" id="accentColor" value="#10b981" oninput="updateThemeRuntime()">
-                    <input type="text" id="accentText" value="#10b981" class="text-input" readonly>
+                <label>External Tool Launchpad</label>
+                <div class="platform-grid">
+                    <button class="platform-btn" onclick="window.open('https://scratch.mit.edu', '_blank')">Scratch</button>
+                    <button class="platform-btn" onclick="window.open('https://turbowarp.org', '_blank')">TurboWarp</button>
+                    <button class="platform-btn" onclick="window.open('https://studio.penguinmod.com', '_blank')">PenguinMod</button>
+                    <button class="platform-btn" onclick="window.open('https://scratchviews.com', '_blank')">Scratch Views</button>
+                </div>
+                <button class="platform-btn" style="width:100%; margin-top:0.5rem;" onclick="window.open('https://scratchstats.com', '_blank')">📊 Open ScratchStats</button>
+            </div>
+            
+            <hr style="border: 0; border-top: 1px solid #27272a; margin: 0;">
+            
+            <div class="control-group">
+                <label>Active Payload Status</label>
+                <textarea class="text-input" style="height: 120px; font-family: monospace; font-size: 0.8rem;" readonly>
+{
+  "modStudioLive": true,
+  "loadedModules": ["ScratchViews", "ScratchStats", "TurboWarp"]
+}</textarea>
+            </div>
+        </section>
+
+        <section class="preview-board">
+            <h2>System Workbench Feed</h2>
+            <p style="color: var(--text-muted); margin: 0;">You are currently modifying the live operational parameters of the baseline Mod Studio container layout wrapper.</p>
+            <div style="background: #050505; border: 1px solid #27272a; height: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-style: italic;">
+                [ Mod Studio Engine System Live Terminal Buffer Preview ]
+            </div>
+        </section>
+    </main>
+
+    <main class="workspace-view" id="viewStudioMod">
+        <section class="sidebar-panel">
+            <h3>🎨 Fork Customizer Matrix</h3>
+            
+            <div class="control-group">
+                <label>🔐 Google Account Simulation</label>
+                <select class="text-input" id="ageProfileSelector" onchange="processAgeMatrix()">
+                    <option value="18">Sign in with Google (Adult Account - Age 18+)</option>
+                    <option value="12">Sign in with Google (Child Account - Under 18)</option>
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>🎨 Theme Accent Color</label>
+                <div class="color-picker-row">
+                    <input type="color" id="themeColorAccent" value="#10b981" oninput="processAgeMatrix()">
+                    <span style="font-family: monospace;" id="accentHexLabel">#10b981</span>
                 </div>
             </div>
 
             <div class="control-group">
-                <label>Block Background Fill</label>
-                <div class="color-picker-wrapper">
-                    <input type="color" id="blockColor" value="#000000" oninput="updateThemeRuntime()">
-                    <input type="text" id="blockText" value="#000000" class="text-input" readonly>
-                </div>
+                <label>👤 Custom Username</label>
+                <input type="text" class="text-input" id="usernameInput" value="Dev_Hacker_99" oninput="processAgeMatrix()">
             </div>
-
-            <button class="launcher-btn" onclick="syncActiveSettings()" style="background-color: #035338; margin-top: 1rem;">
-                ⚡ Sync Custom Changes
-            </button>
             
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
-                Adjust color configurations above, click Sync, and refresh your Scratch or TurboWarp editor tab!
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
+                Studio Mod runs an unmoderated custom variant of the PenguinMod core engine allowing full chat freedom for verified developer accounts.
             </p>
         </section>
 
-        <section class="code-box-wrapper">
-            <div class="code-header">
-                <span>live-generation-matrix.json</span>
-                <button class="btn-action" onclick="copyToClipboard()">Copy Payload</button>
+        <section class="preview-board" id="studioModContainer">
+            <span class="age-badge" id="ageBadgeDisplay">Loading Profile Node...</span>
+            <h2 style="margin:0;">Studio Mod <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">v4.0 (PenguinMod Custom Fork)</span></h2>
+            
+            <p id="systemModeDisclaimer">Processing workspace parameters...</p>
+
+            <div class="mock-blockly-canvas">
+                <div class="mock-block hat">when stop sign clicked</div>
+                <div class="mock-block">current [hour v] of time blocks</div>
+                <div class="mock-block" style="background-color: rgba(255,255,255,0.05);">
+                    say [ <span id="usernameLabelDisplay" style="color: var(--user-accent);">User</span> ] to active network chat
+                </div>
             </div>
-            <pre><code id="jsonContainer">Generating data blocks...</code></pre>
         </section>
     </main>
 
     <script>
-        function updateThemeRuntime() {
-            const accent = document.getElementById("accentColor").value;
-            const blockFill = document.getElementById("blockColor").value;
-            
-            document.getElementById("accentText").value = accent;
-            document.getElementById("blockText").value = blockFill;
-            
-            // Adjust local page preview highlights dynamically
-            document.documentElement.style.setProperty('--user-accent', accent);
+        // Tab switcher function
+        function switchView(target) {
+            document.getElementById("viewLive").classList.remove("active");
+            document.getElementById("viewStudioMod").classList.remove("active");
+            document.getElementById("btnLive").classList.remove("active");
+            document.getElementById("btnStudioMod").classList.remove("active");
 
-            // Dynamically reconstruct the compiler configuration file structure
-            const realTimeConfig = {
-                "themeStyle": {
-                    "primaryAccent": accent,
-                    "canvasBackground": blockFill,
-                    "inputFill": blockFill
-                },
-                "overrides": {
-                    "forceCloneToEvents": true,
-                    "enableStopSignHat": true,
-                    "injectTimeBlocks": true
-                }
-            };
-
-            document.getElementById("jsonContainer").innerText = JSON.stringify(realTimeConfig, null, 2);
+            if(target === 'live') {
+                document.getElementById("viewLive").classList.add("active");
+                document.getElementById("btnLive").classList.add("active");
+            } else {
+                document.getElementById("viewStudioMod").classList.add("active");
+                document.getElementById("btnStudioMod").classList.add("active");
+                processAgeMatrix(); // Automatically generate profile data updates
+            }
         }
 
-        function syncActiveSettings() {
-            const activeCodePayload = document.getElementById("jsonContainer").innerText;
-            window.postMessage({ type: "MOD_STUDIO_SYNC", payload: JSON.parse(activeCodePayload) }, "*");
-            alert("🎯 Configurations updated! Your specific color schemes are locked into browser engine paths.");
+        // Core Age Gating Censor & Accent Compilation Engine
+        function processAgeMatrix() {
+            const ageSelected = parseInt(document.getElementById("ageProfileSelector").value);
+            const rawAccentColor = document.getElementById("themeColorAccent").value;
+            let currentUsername = document.getElementById("usernameInput").value;
+
+            // Sync visual hex indicators dynamically across layout layers
+            document.documentElement.style.setProperty('--user-accent', rawAccentColor);
+            document.getElementById("accentHexLabel").innerText = rawAccentColor.toUpperCase();
+
+            // Profanity array setup to handle chat moderation filters
+            const forbiddenWords = [/damn/gi, /hell/gi, /crap/gi, /ass/gi];
+            let isProfane = forbiddenWords.some(regex => regex.test(currentUsername));
+
+            const badgeElement = document.getElementById("ageBadgeDisplay");
+            const disclaimerElement = document.getElementById("systemModeDisclaimer");
+            const chatDisplay = document.getElementById("usernameLabelDisplay");
+
+            if (ageSelected < 18) {
+                // RUN THE KIDS SYSTEM MATRIX
+                badgeElement.className = "age-badge badge-kids";
+                badgeElement.innerText = "🛡️ Kids Edition Active";
+                disclaimerElement.innerHTML = "<strong>Safe Workspace Mode:</strong> Swear words are systematically filtered on this platform profile layout. Built-in customization parameters are strictly moderated.";
+                
+                // Scrub incoming text fields
+                forbiddenWords.forEach(regex => {
+                    currentUsername = currentUsername.replace(regex, "****");
+                });
+                chatDisplay.innerText = `${currentUsername} (Filtered Sandbox Speech Mode)`;
+            } else {
+                // RUN THE UNRESTRICTED 18+ MATRIX (Customization already pre-built)
+                badgeElement.className = "age-badge badge-adult";
+                badgeElement.innerText = "🚀 18+ Developer Build Unlocked";
+                disclaimerElement.innerHTML = "<strong>Unrestricted Workspace Mod:</strong> Full access granted to developer tool pipelines. Swearing is permitted in the environment log. The customization controls have been fully integrated into the code layer natively.";
+                chatDisplay.innerText = `${currentUsername} (Uncensored Developer Matrix)`;
+            }
         }
 
-        function copyToClipboard() {
-            navigator.clipboard.writeText(document.getElementById("jsonContainer").innerText).then(() => {
-                alert("🎯 Configuration copied!");
-            });
+        // Initialize execution setup parameters on load window hook
+        window.onload = function() {
+            processAgeMatrix();
         }
-
-        function downloadConfig() {
-            const dataStream = "data:text/plain;charset=utf-8," + encodeURIComponent(document.getElementById("jsonContainer").innerText);
-            const anchor = document.createElement('a');
-            anchor.setAttribute("href", dataStream);
-            anchor.setAttribute("download", "mod-studio-custom.json");
-            document.body.appendChild(anchor);
-            anchor.click();
-            anchor.remove();
-        }
-
-        window.onload = updateThemeRuntime;
     </script>
 </body>
 </html>
