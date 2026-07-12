@@ -3,457 +3,1962 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio Mod - Fully Loaded Scratch Fork</title>
-    <link rel="icon" type="image/png" href="costume1 (24).png">
+    <title>Studio Mod 3D - Classic Scratch 3D Engine & Hub</title>
     
+    <!-- External Engine Scripts (Blockly, Three.js, & Phosphor Icons) -->
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
 
     <style>
         :root {
-            --bg-black: #000000;
-            --panel-dark: #050505;
-            --panel-card: #0a0a0a;
-            --text-main: #ffffff;
-            --text-muted: #8e8e8e;
-            --user-accent: #10b981;
+            --bg-black: #09090b;
+            --panel-dark: #121214;
+            --panel-card: #1a1a1e;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --user-accent: #855cd6; /* Classic Scratch Purple theme */
+            --scratch-orange: #ffab19;
+            --scratch-green: #2cf27b;
+            --scratch-red: #ff4c4c;
         }
 
         body {
-            margin: 0; padding: 0;
             background-color: var(--bg-black);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: var(--text-main);
-            overflow: hidden; height: 100vh;
+            overflow: hidden;
+            height: 100vh;
         }
 
-        .workspace-header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 0.75rem 1.5rem; background-color: var(--panel-dark);
-            border-bottom: 2px solid var(--user-accent);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8); z-index: 100; position: relative;
+        /* Pure Dark Custom Blockly CSS Overrides */
+        .blocklyMainBackground {
+            fill: #0c0c0e !important;
+            stroke: none !important;
+        }
+        .blocklyWorkspace, .blocklyCanvas {
+            background-color: #0c0c0e !important;
+        }
+        .blocklySvg {
+            background-color: #0c0c0e !important;
+        }
+        .blocklyToolboxBackground {
+            background-color: #121214 !important;
+            border-right: 1px solid #27272a !important;
+        }
+        .blocklyFlyoutBackground {
+            fill: #121214 !important;
+            fill-opacity: 0.98 !important;
+        }
+        .blocklyTreeLabel {
+            color: #e4e4e7 !important;
+            font-weight: 600 !important;
+            font-family: 'Segoe UI', system-ui, sans-serif !important;
+        }
+        .blocklyScrollbarHandle {
+            fill: #27272a !important;
+            fill-opacity: 0.6 !important;
+        }
+        .blocklyWidgetDiv, .blocklyTooltipDiv, .blocklyMenuDiv {
+            background-color: #121214 !important;
+            border: 1px solid var(--user-accent) !important;
+            color: #ffffff !important;
+        }
+        .blocklyMenuItemContent {
+            color: #ffffff !important;
+            font-family: 'Segoe UI', system-ui, sans-serif !important;
+        }
+        .blocklyMenuItem:hover {
+            background-color: rgba(255, 255, 255, 0.08) !important;
         }
 
-        .header-brand { font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; }
-        .header-brand span { color: var(--user-accent); }
-
-        .customizer-bar {
-            display: flex; align-items: center; gap: 1rem;
-            background: rgba(255,255,255,0.02); padding: 0.4rem 1rem;
-            border-radius: 6px; border: 1px solid #1f1f1f;
+        /* Scrollbar customizing */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
-
-        .control-unit { display: flex; align-items: center; gap: 0.5rem; }
-        .control-unit label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
-        .text-input { background: #000; border: 1px solid #222; color: #fff; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; outline: none; }
-
-        .hub-tabs { display: flex; background: #050505; border-bottom: 1px solid #1f1f1f; padding: 0.25rem 1rem; gap: 0.5rem; }
-        .hub-tab-btn { background: transparent; color: var(--text-muted); border: none; padding: 0.6rem 1.2rem; font-weight: 600; cursor: pointer; border-radius: 4px; font-size: 0.9rem; }
-        .hub-tab-btn.active { background: rgba(255,255,255,0.05); color: var(--user-accent); }
-
-        .app-workspace { height: calc(100vh - 110px); position: relative; width: 100%; }
-        .panel-view { display: none; width: 100%; height: 100%; overflow: hidden; background: #000; }
-        .panel-view.active { display: block; }
-
-        /* Integrated Split Workspace Layout */
-        .editor-split-grid { display: grid; grid-template-columns: 1fr 340px; width: 100%; height: 100%; }
-        #blocklyCanvasContainer { width: 100%; height: 100%; background-color: #000; }
-        
-        .stage-and-assets-sidebar { 
-            background: var(--panel-dark); border-left: 1px solid #1f1f1f; 
-            display: flex; flex-direction: column; overflow-y: auto; height: 100%;
+        ::-webkit-scrollbar-track {
+            background: #121214;
         }
-
-        /* Runtime Stage Simulation Control Layer */
-        .simulation-stage-screen {
-            background: #111; width: 100%; height: 210px; position: relative;
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            border-bottom: 1px solid #1f1f1f;
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 4px;
         }
-        .simulated-actor {
-            width: 50px; height: 50px; background: var(--user-accent); 
-            border-radius: 8px; position: absolute; transition: transform 0.5s ease;
-            display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000;
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--user-accent);
         }
-        .stage-runtime-navbar {
-            display: flex; justify-content: space-between; align-items: center;
-            background: #020202; padding: 0.5rem 1rem; border-bottom: 1px solid #1f1f1f;
-        }
-        .playback-controls { display: flex; gap: 0.5rem; }
-        .control-glyph-btn { background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: #fff; }
-
-        /* Asset Panel Components */
-        .asset-management-suite { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
-        .asset-tray-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; }
-        .asset-thumb-card {
-            background: var(--panel-card); border: 1px solid #222; border-radius: 6px;
-            padding: 0.5rem; text-align: center; cursor: pointer; font-size: 0.75rem;
-        }
-        .asset-thumb-card.selected { border-color: var(--user-accent); background: rgba(255,255,255,0.02); }
-
-        /* Community Elements Layout */
-        .community-container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; gap: 2rem; height: 90%; overflow-y: auto; }
-        .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
-        .community-card { background: var(--panel-card); border: 1px solid #1f1f1f; border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
-        
-        .comment-thread-box { display: flex; flex-direction: column; gap: 0.75rem; background: #020202; border: 1px solid #1f1f1f; padding: 1rem; border-radius: 6px; }
-        .comment-node { font-size: 0.85rem; border-bottom: 1px solid #111; padding-bottom: 0.5rem; }
-
-        .btn-action { background: var(--user-accent); color: #000; border: none; padding: 0.5rem 1rem; font-weight: 700; border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-align: center; }
-        .btn-action-outline { background: transparent; color: #fff; border: 1px solid #222; padding: 0.5rem 1rem; font-weight: 600; border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-align: center; }
-
-        .server-status-ribbon { position: absolute; bottom: 1rem; left: 1rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; z-index: 99; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none; }
-        .server-kids { background-color: #eab308; color: #000; border: 1px solid #ca8a04; }
-        .server-adult { background-color: var(--user-accent); color: #000; border: 1px solid var(--user-accent); }
-
-        .auth-blockade-curtain { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .auth-card { background: var(--panel-card); border: 1px solid #1f1f1f; border-radius: 12px; padding: 3rem; text-align: center; max-width: 450px; }
-        .google-login-btn { background: #ffffff; color: #000000; border: none; padding: 0.8rem 1.75rem; font-weight: 700; font-size: 0.95rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1rem; }
-
-        .blocklyFlyoutBackground { fill: #050505 !important; fill-opacity: 0.95 !important; }
-        .blocklyToolboxBackground { background-color: #050505 !important; border-right: 1px solid #1f1f1f !important; }
-        .blocklyTreeLabel { color: #ffffff !important; font-family: 'Segoe UI', sans-serif !important; font-weight: 600 !important; }
-        .blocklyMainBackground { stroke: none !important; fill: #000000 !important; }
     </style>
 </head>
-<body>
+<body class="flex flex-col h-screen select-none text-sm">
 
-    <div class="auth-blockade-curtain" id="authGateCurtain">
-        <div class="auth-card">
-            <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">Studio Mod Engine v6.0</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.5rem 0;">
-                Log in using your simulated Google Profile token to unlock execution threads and automatically provision local sandbox server routes.
-            </p>
-            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                <button class="google-login-btn" onclick="processIncomingGoogleToken(21)">🔑 Google Sign-In (Verified Age 18+)</button>
-                <button class="google-login-btn" style="background:#d4d4d8;" onclick="processIncomingGoogleToken(12)">🛡️ Google Sign-In (Verified Age Under 18)</button>
+    <!-- SECURE INTERFACE NOTIFICATION TOAST OVERLAY -->
+    <div class="system-modal-backdrop fixed inset-0 bg-black/85 flex items-center justify-center z-[2000] hidden" id="systemDialogModal">
+        <div class="system-modal-card bg-[#121214] border-2 border-[#855cd6] rounded-xl p-6 w-[400px] text-center shadow-2xl">
+            <h3 id="dialogTitle" class="text-lg font-bold mb-3 text-white">Mod System Hub</h3>
+            <p id="dialogMsg" class="text-zinc-400 text-sm leading-relaxed mb-6">Alert details.</p>
+            <button class="w-full bg-[#855cd6] hover:bg-[#9773e3] text-white font-bold py-2.5 px-4 rounded-lg transition-all" onclick="dismissSystemDialog()">Acknowledge</button>
+        </div>
+    </div>
+
+    <!-- PROJECT VIEWER / COMMENTS MODAL -->
+    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-[1500] hidden" id="projectDetailsModal">
+        <div class="bg-[#121214] border border-zinc-800 rounded-2xl w-[90%] max-w-4xl max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 id="modalProjTitle" class="text-xl font-bold text-white">Project Title</h3>
+                    <p id="modalProjAuthor" class="text-xs text-[#a78bfa]">by Username</p>
+                </div>
+                <button class="text-zinc-400 hover:text-white text-xl" onclick="closeProjectDetailsModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Left: 3D Stage Clone Box -->
+                <div class="flex flex-col gap-2">
+                    <div id="modalStagePlaceholder" class="w-full h-[260px] bg-black rounded-xl border border-zinc-800 relative overflow-hidden flex items-center justify-center">
+                        <span class="text-zinc-500 text-xs">Run preview loads in workspace.</span>
+                    </div>
+                    <div class="flex items-center justify-between px-2 text-xs text-zinc-400">
+                        <div class="flex gap-4">
+                            <button id="modalLoveBtn" onclick="toggleLoveActiveProject()" class="flex items-center gap-1 hover:text-red-400 transition-all">
+                                <i class="ph ph-heart"></i> <span id="modalLoveCount">0</span>
+                            </button>
+                            <button id="modalFavBtn" onclick="toggleFavActiveProject()" class="flex items-center gap-1 hover:text-yellow-400 transition-all">
+                                <i class="ph ph-star"></i> <span id="modalFavCount">0</span>
+                            </button>
+                            <span class="flex items-center gap-1"><i class="ph ph-eye"></i> <span id="modalViewCount">0</span></span>
+                        </div>
+                        <button class="bg-[#855cd6] text-white font-bold py-1 px-3 rounded-lg text-[11px]" id="modalRemixBtn">Remix</button>
+                    </div>
+                </div>
+
+                <!-- Right: Instructions & Remix Tree -->
+                <div class="flex flex-col gap-3">
+                    <div class="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800/80">
+                        <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide mb-1">Instructions</h4>
+                        <p id="modalProjInstructions" class="text-xs text-zinc-300 leading-relaxed italic">Click Green Flag in workspace to compile elements.</p>
+                    </div>
+                    <div class="bg-zinc-900/60 p-3 rounded-xl border border-zinc-800/80">
+                        <h4 class="text-xs font-bold text-[#ffab19] uppercase tracking-wide mb-1 flex items-center gap-1">
+                            <i class="ph ph-git-fork"></i> Remix Origins
+                        </h4>
+                        <p id="modalRemixOriginText" class="text-xs text-zinc-400">Original Project (Root Node)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Comment Board -->
+            <div class="border-t border-zinc-800 pt-4 flex flex-col gap-3">
+                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Project Comments (<span id="modalCommentsNum">0</span>)</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="projectCommentInput" class="flex-grow bg-black border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-[#855cd6]" placeholder="What do you think of this 3D model project?">
+                    <button class="bg-[#855cd6] text-black font-bold px-4 py-2 rounded-lg text-xs" onclick="postProjectComment()">Add Comment</button>
+                </div>
+                <div id="projectCommentsList" class="flex flex-col gap-2 max-h-[160px] overflow-y-auto">
+                    <!-- Dynamic project comments -->
+                </div>
             </div>
         </div>
     </div>
 
-    <header class="workspace-header">
-        <div class="header-brand">Studio<span>Mod</span> <span style="font-size:0.75rem; background:rgba(255,255,255,0.05); padding:0.25rem 0.5rem; border-radius:4px; font-weight:normal; color:var(--text-muted);">Loaded Target Core</span></div>
+    <!-- STUDIO VIEW/CREATOR DIALOG -->
+    <div class="fixed inset-0 bg-black/90 flex items-center justify-center z-[1500] hidden" id="studioModal">
+        <div class="bg-[#121214] border border-zinc-800 rounded-2xl w-[90%] max-w-4xl max-h-[85vh] overflow-y-auto p-6 flex flex-col gap-4">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h3 id="studioModalTitle" class="text-xl font-bold text-white">Studio Hub</h3>
+                    <p id="studioModalDesc" class="text-xs text-zinc-400">Studio Description</p>
+                </div>
+                <button class="text-zinc-400 hover:text-white text-xl" onclick="closeStudioModal()">
+                    <i class="ph ph-x"></i>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Left Panel: Curators & Members -->
+                <div class="bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/80 flex flex-col gap-3">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-[#855cd6] uppercase tracking-wide">Curators List</h4>
+                        <button class="text-[10px] bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded text-white" onclick="joinStudioAsCurator()">Join</button>
+                    </div>
+                    <div id="studioCuratorList" class="flex flex-col gap-1 text-xs text-zinc-300 max-h-[140px] overflow-y-auto">
+                        <!-- Curator rows -->
+                    </div>
+                </div>
+
+                <!-- Center & Right Panel: Project curation grid -->
+                <div class="col-span-2 flex flex-col gap-3 bg-zinc-900/60 p-4 rounded-xl border border-zinc-800/80">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-xs font-bold text-zinc-300 uppercase tracking-wide">Curation Stack (Add your models)</h4>
+                        <button class="bg-[#855cd6] text-black font-bold px-2 py-1 rounded text-[11px]" onclick="addProjectToStudioStack()">Curate Project</button>
+                    </div>
+                    <div id="studioProjectGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto">
+                        <!-- Project links in studio -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Studio Wall Chats -->
+            <div class="border-t border-zinc-800 pt-4 flex flex-col gap-2">
+                <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Studio Activity Log / Wall</h4>
+                <div class="flex gap-2">
+                    <input type="text" id="studioCommentInput" class="flex-grow bg-black border border-zinc-800 rounded-lg px-3 py-2 text-xs text-white outline-none" placeholder="Relay details on the Studio network segment...">
+                    <button class="bg-[#855cd6] text-black font-bold px-4 py-2 rounded-lg text-xs" onclick="postStudioComment()">Post</button>
+                </div>
+                <div id="studioCommentsWall" class="flex flex-col gap-2 max-h-[140px] overflow-y-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTHENTICATION DIALOG BLOCKADE -->
+    <div class="auth-blockade-curtain fixed inset-0 bg-black z-[1000] flex flex-col items-center justify-center" id="authGateCurtain">
+        <div class="bg-[#121214] border border-zinc-800 rounded-2xl p-8 max-w-md text-center shadow-2xl flex flex-col items-center">
+            <div class="w-16 h-16 bg-[#855cd6]/10 text-[#855cd6] rounded-2xl flex items-center justify-center text-4xl mb-4">
+                <i class="ph ph-sparkle"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Studio Mod 3D Hub</h2>
+            <p class="text-zinc-400 text-sm leading-relaxed mb-6">
+                Connect your account via verified Google profile authentication to provision your layout servers and activate the 3D WebGL compiler logic.
+            </p>
+            <div class="flex flex-col gap-3 w-full">
+                <button class="w-full bg-white hover:bg-zinc-100 text-black font-bold py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition-all cursor-pointer" onclick="processIncomingGoogleToken(24)">
+                    <i class="ph ph-key font-bold"></i> Google Sign-In (Verified Age 18+)
+                </button>
+                <button class="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-bold py-3 px-4 rounded-lg inline-flex items-center justify-center gap-2 transition-all cursor-pointer" onclick="processIncomingGoogleToken(13)">
+                    <i class="ph ph-shield-check"></i> Google Sign-In (Under 18 Sandbox)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN INTERFACE HEADER ENGINE -->
+    <header class="flex justify-between items-center px-4 py-2 bg-[#121214] border-b-2 border-[#855cd6] z-[100] relative">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#855cd6] rounded-xl flex items-center justify-center text-white text-2xl font-bold">
+                <i class="ph ph-cube"></i>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-white font-bold text-base leading-none">Studio Mod <span class="text-[#855cd6]">3D</span></span>
+                <span class="text-[10px] text-zinc-500 font-semibold tracking-wider uppercase">Z-Axis Classic Scratch Architecture</span>
+            </div>
+        </div>
         
-        <div class="customizer-bar">
-            <div class="control-unit">
-                <label>Theme</label>
-                <input type="color" id="themeColorSelector" value="#10b981" oninput="compileDynamicThemeEnvironment()">
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-3 bg-zinc-900/60 border border-zinc-800 px-3 py-1.5 rounded-lg">
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase">Z-Color</label>
+                    <input type="color" id="themeColorSelector" value="#855cd6" class="w-6 h-6 rounded border-none cursor-pointer bg-transparent" oninput="compileDynamicThemeEnvironment()">
+                </div>
+                <div class="h-4 w-px bg-zinc-800"></div>
+                <div class="flex items-center gap-2">
+                    <label class="text-[10px] font-bold text-zinc-500 uppercase">Project</label>
+                    <input type="text" id="projectTitleField" class="bg-black border border-zinc-800 text-white px-2 py-0.5 rounded text-xs w-44 outline-none focus:border-[#855cd6]" value="Classic 3D Physics & Space">
+                </div>
             </div>
-            <div class="control-unit">
-                <label>Project Title</label>
-                <input type="text" id="projectTitleField" class="text-input" value="Modded Layout Build" style="width: 140px;">
+            <div class="flex items-center gap-2">
+                <button class="bg-[#855cd6]/10 hover:bg-[#855cd6]/25 border border-[#855cd6]/40 text-[#a78bfa] font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs" onclick="saveActiveProjectData()">
+                    <i class="ph ph-floppy-disk"></i> Save Mod
+                </button>
+                <button class="bg-[#855cd6] hover:bg-[#9773e3] text-white font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer text-xs" onclick="shareProjectToCommunity()">
+                    <i class="ph ph-share-network"></i> Share
+                </button>
+                <button class="border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold py-1.5 px-3 rounded-lg transition-all cursor-pointer text-xs" onclick="location.reload()">
+                    Disconnect
+                </button>
             </div>
-            <button class="btn-action" style="background: rgba(255,255,255,0.08); color: #fff;" onclick="saveActiveProjectData()">💾 Save Mod</button>
-            <button class="btn-action" onclick="shareProjectToCommunity()">🚀 Share Mod</button>
-            <button class="text-input" style="background:transparent; border-color:#ef4444; color:#ef4444; cursor:pointer; width:auto; font-weight:bold;" onclick="location.reload()">Disconnect</button>
         </div>
     </header>
 
-    <nav class="hub-tabs">
-        <button class="hub-tab-btn active" id="tabBtnEditor" onclick="switchPanel('editor')">🛠️ Workspace Editor</button>
-        <button class="hub-tab-btn" id="tabBtnExplore" onclick="switchPanel('explore'); renderSharedFeed();">🌍 Explore System Feed</button>
-        <button class="hub-tab-btn" id="tabBtnProfile" onclick="switchPanel('profile'); loadUserProfileData();">👤 My Profile Node</button>
+    <!-- MAIN APP TABS -->
+    <nav class="flex bg-[#0c0c0e] border-b border-zinc-800 px-4 py-1 gap-2">
+        <button class="flex items-center gap-1.5 px-4 py-2 font-bold rounded-lg text-sm transition-all cursor-pointer text-[#855cd6] bg-zinc-900/50 border border-zinc-800" id="tabBtnEditor" onclick="switchPanel('editor')">
+            <i class="ph ph-cards"></i> 3D Mod Workspace
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 font-bold rounded-lg text-sm transition-all cursor-pointer text-zinc-400 hover:text-white" id="tabBtnExplore" onclick="switchPanel('explore'); renderExploreSuite();">
+            <i class="ph ph-globe"></i> Explore Mod Community
+        </button>
+        <button class="flex items-center gap-1.5 px-4 py-2 font-bold rounded-lg text-sm transition-all cursor-pointer text-zinc-400 hover:text-white" id="tabBtnProfile" onclick="switchPanel('profile'); renderProfileSuite();">
+            <i class="ph ph-user-circle"></i> Developer Profile Node
+        </button>
     </nav>
 
-    <main class="app-workspace">
+    <!-- LIVE STAGE WORKING REGISTRATION SCREENS -->
+    <main class="flex-grow relative w-full overflow-hidden">
         
-        <div class="panel-view active" id="viewEditor">
-            <div class="editor-split-grid">
-                <div id="blocklyCanvasContainer"></div>
+        <!-- MODULE A: 3D GRAPHICS WORKSPACE ENGINE -->
+        <div class="panel-view absolute inset-0 flex" id="viewEditor">
+            <!-- CLASSIC SCRATCH SPLIT LAYOUT -->
+            <!-- LEFT COLUMN: 3D STAGE & SPRITE MANAGEMENT -->
+            <div class="w-[420px] flex flex-col border-r border-zinc-800 bg-[#121214] h-full overflow-hidden shrink-0">
                 
-                <aside class="stage-and-assets-sidebar">
-                    <div class="stage-runtime-navbar">
-                        <span style="font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted);">Stage Display View</span>
-                        <div class="playback-controls">
-                            <button class="control-glyph-btn" style="color: #22c55e;" title="Play Script" onclick="triggerStagePlayback('play')">🟢</button>
-                            <button class="control-glyph-btn" style="color: #eab308;" title="Pause Script" onclick="triggerStagePlayback('pause')">🟡</button>
-                            <button class="control-glyph-btn" style="color: #ef4444;" title="Stop Script" onclick="triggerStagePlayback('stop')">🛑</button>
-                        </div>
+                <!-- STAGE ACTIONS HEADER -->
+                <div class="flex justify-between items-center bg-[#0c0c0e] px-3 py-2 border-b border-zinc-850">
+                    <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1">
+                        <i class="ph ph-television"></i> 3D World Stage
+                    </span>
+                    <!-- GREEN FLAG AND STOP BUTTON -->
+                    <div class="flex items-center gap-1.5 bg-zinc-900 px-2 py-1 rounded-lg border border-zinc-800">
+                        <button class="text-[#2cf27b] hover:scale-115 active:scale-95 transition-all text-xl cursor-pointer" title="Go (Green Flag)" onclick="triggerStagePlayback('play')">
+                            <i class="ph ph-flag-bold"></i>
+                        </button>
+                        <div class="w-px h-4 bg-zinc-800"></div>
+                        <button class="text-[#ff4c4c] hover:scale-115 active:scale-95 transition-all text-xl cursor-pointer" title="Stop Everything" onclick="triggerStagePlayback('stop')">
+                            <i class="ph ph-stop-circle-bold"></i>
+                        </button>
                     </div>
-                    <div class="simulation-stage-screen" id="simulatedStageBackground">
-                        <div class="simulated-actor" id="simulatedSpriteElement">🐈</div>
-                    </div>
+                </div>
 
-                    <div class="asset-management-suite">
-                        <div class="control-group">
-                            <label>Background Canvas Node</label>
-                            <div class="asset-tray-row">
-                                <div class="asset-thumb-card selected" id="bg_dark" onclick="selectStageAsset('background', 'dark')">Pure Void</div>
-                                <div class="asset-thumb-card" id="bg_grid" onclick="selectStageAsset('background', 'grid')">Matrix Grid</div>
+                <!-- 3D STAGE VIEWPORT CANVAS -->
+                <div class="relative w-full h-[320px] bg-black border-b border-zinc-800 cursor-grab active:cursor-grabbing shrink-0" id="stageCanvas3D">
+                    <!-- Dynamic Variable Monitors Overlay -->
+                    <div class="absolute top-2 left-2 flex flex-col gap-1.5 pointer-events-none z-30" id="stageMonitorsContainer">
+                        <!-- Dynamic variable monitors are injected here -->
+                    </div>
+                </div>
+
+                <!-- SPRITES AND BACKDROPS PANE -->
+                <div class="flex-grow flex flex-col overflow-hidden bg-[#0c0c0e]">
+                    <!-- Properties Panel -->
+                    <div class="p-3 bg-zinc-900/60 border-b border-zinc-800/80 grid grid-cols-4 gap-2 text-xs shrink-0">
+                        <div class="flex flex-col gap-1 col-span-2">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Active Sprite</label>
+                            <input type="text" id="spriteNameField" class="bg-black border border-zinc-800 text-white px-2 py-1 rounded outline-none focus:border-[#855cd6] text-xs font-semibold" value="Mesh 3D Cat" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">X Pos</label>
+                            <input type="number" id="spriteXField" class="bg-black border border-zinc-800 text-white px-1 py-1 rounded outline-none text-center focus:border-[#855cd6] text-xs" value="0" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Y Pos</label>
+                            <input type="number" id="spriteYField" class="bg-black border border-zinc-800 text-white px-1 py-1 rounded outline-none text-center focus:border-[#855cd6] text-xs" value="0" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Z Pos</label>
+                            <input type="number" id="spriteZField" class="bg-black border border-zinc-800 text-white px-1 py-1 rounded outline-none text-center focus:border-[#855cd6] text-xs" value="0" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Size %</label>
+                            <input type="number" id="spriteScaleField" class="bg-black border border-zinc-800 text-white px-1 py-1 rounded outline-none text-center focus:border-[#855cd6] text-xs" value="100" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Direction</label>
+                            <input type="number" id="spriteDirectionField" class="bg-black border border-zinc-800 text-white px-1 py-1 rounded outline-none text-center focus:border-[#855cd6] text-xs" value="90" oninput="updateActiveSpriteProperties()">
+                        </div>
+                        <div class="flex flex-col gap-1 col-span-2">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Visibility</label>
+                            <div class="flex gap-1">
+                                <button id="btnShowSprite" class="flex-grow bg-[#855cd6] text-black font-bold py-1 rounded text-center transition-all cursor-pointer hover:bg-[#9773e3]" onclick="setSpriteVisibility(true)">Show</button>
+                                <button id="btnHideSprite" class="flex-grow bg-zinc-800 text-zinc-400 font-bold py-1 rounded text-center transition-all cursor-pointer hover:text-white" onclick="setSpriteVisibility(false)">Hide</button>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="control-group">
-                            <label>Active Sprite Registries</label>
-                            <div class="asset-tray-row">
-                                <div class="asset-thumb-card selected" id="sprite_cat" onclick="selectStageAsset('sprite', 'cat')">Cat (Default)</div>
-                                <div class="asset-thumb-card" id="sprite_cube" onclick="selectStageAsset('sprite', 'cube')">Data Block</div>
-                                <div class="asset-thumb-card" id="sprite_ghost" onclick="selectStageAsset('sprite', 'ghost')">Phantom</div>
+                    <!-- Assets List Container -->
+                    <div class="flex-grow overflow-y-auto p-3 flex flex-col gap-3">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">3D Sprites Sandbox List</h4>
+                            <button class="bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold px-2 py-1 rounded flex items-center gap-1 text-[11px]" onclick="addNew3DObject()">
+                                <i class="ph ph-plus-circle font-bold"></i> Add Sprite
+                            </button>
+                        </div>
+
+                        <!-- Grid container for Sprites -->
+                        <div class="grid grid-cols-3 gap-2" id="spritesListGrid">
+                            <!-- Dynamic Sprites go here -->
+                        </div>
+
+                        <div class="h-px bg-zinc-800 my-1"></div>
+
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Environment Backdrops</h4>
+                            <button class="bg-zinc-800 hover:bg-zinc-700 text-white font-bold px-2 py-1 rounded flex items-center gap-1 text-[11px]" onclick="openPaintSubEditor('background')">
+                                <i class="ph ph-paint-brush"></i> Paint Backdrop
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2" id="backgroundAssetContainer">
+                            <div class="bg-[#1a1a1e] border-2 border-[#855cd6] rounded-lg p-2 text-center cursor-pointer text-xs flex flex-col items-center justify-center gap-1 hover:border-[#855cd6]" id="bg_default" onclick="applyAssetToStageView('background', 'default')">
+                                <i class="ph ph-globe-hemisphere-west text-xl text-zinc-400"></i>
+                                <span class="truncate max-w-full">Pure Void</span>
                             </div>
                         </div>
                     </div>
-                </aside>
+                </div>
             </div>
-        </div>
 
-        <div class="panel-view" id="viewExplore" style="overflow-y:auto;">
-            <div class="community-container">
-                <h2>Shared Community Mod Pipelines</h2>
-                <div class="meta-grid" id="exploreGrid"></div>
+            <!-- RIGHT COLUMN: CENTRAL WORKSPACE TABS & CODE/COSTUME/SOUND EDITORS -->
+            <div class="flex-grow flex flex-col h-full bg-[#0c0c0e] overflow-hidden">
+                <!-- CENTRAL TAB PANEL FOR THE CURRENT ACTIVE SPRITE -->
+                <div class="flex bg-zinc-900 border-b border-zinc-800 shrink-0">
+                    <button class="tab-ws-btn flex items-center gap-1.5 px-5 py-2.5 font-semibold text-xs border-r border-zinc-850 border-b-2 border-[#855cd6] text-white bg-zinc-950 transition-all cursor-pointer" id="wsTabBtnCode" onclick="switchWorkspaceTab('code')">
+                        <i class="ph ph-code"></i> Code
+                    </button>
+                    <button class="tab-ws-btn flex items-center gap-1.5 px-5 py-2.5 font-semibold text-xs border-r border-zinc-850 text-zinc-400 hover:text-white transition-all cursor-pointer" id="wsTabBtnCostumes" onclick="switchWorkspaceTab('costumes')">
+                        <i class="ph ph-palette"></i> Costumes
+                    </button>
+                    <button class="tab-ws-btn flex items-center gap-1.5 px-5 py-2.5 font-semibold text-xs border-r border-zinc-850 text-zinc-400 hover:text-white transition-all cursor-pointer" id="wsTabBtnSounds" onclick="switchWorkspaceTab('sounds')">
+                        <i class="ph ph-music-notes"></i> Sounds
+                    </button>
+                    <!-- Gemini AI Engine status marker -->
+                    <div class="ml-auto flex items-center gap-2 px-4 text-xs text-zinc-500">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        AI Node Compiled
+                    </div>
+                </div>
 
-                <div style="background: var(--panel-card); border: 1px solid #1f1f1f; padding: 2rem; border-radius: 8px; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
-                    <h3>Public Channel Feed Comments</h3>
-                    <div class="comment-thread-box" id="commentsHistoryStack"></div>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <input type="text" id="commentInputField" class="text-input" placeholder="Append comment message payload to network loop..." style="flex-grow: 1;">
-                        <button class="btn-action" onclick="postGlobalNetworkComment()">Send Comment</button>
+                <!-- WORKSPACE CONTENT CONTAINER -->
+                <div class="flex-grow relative overflow-hidden">
+                    
+                    <!-- TAB 1: BLOCKLY WORKSPACE CONTAINER -->
+                    <div class="absolute inset-0 flex flex-col" id="wsTabContentCode">
+                        <div id="blocklyCanvasContainer" class="flex-grow"></div>
+                        <!-- Backpack Drawer Overlay -->
+                        <div class="h-10 bg-zinc-900 border-t border-zinc-800 flex justify-between items-center px-4 shrink-0 transition-all cursor-pointer" id="backpackDrawer" onclick="toggleBackpack()">
+                            <span class="text-xs font-bold text-zinc-400 flex items-center gap-1.5 uppercase">
+                                <i class="ph ph-briefcase"></i> Backpack (Save code snippets)
+                            </span>
+                            <div class="flex items-center gap-2">
+                                <button class="bg-[#855cd6] text-black font-bold px-2 py-0.5 rounded text-[10px]" onclick="addCurrentWorkspaceToBackpack(event)">Add Current Code</button>
+                                <span id="backpackArrow" class="text-zinc-500 text-xs font-bold transition-all"><i class="ph ph-caret-up"></i></span>
+                            </div>
+                        </div>
+                        <div class="h-0 bg-zinc-950/85 overflow-y-auto transition-all flex flex-col gap-2 p-3 text-xs" id="backpackContainer">
+                            <!-- Dynamic backpack cards elements -->
+                            <div id="backpackContentList" class="flex flex-wrap gap-2">
+                                <p class="text-zinc-500 italic">No saved code blocks in backpack. Click "Add Current Code" or drag files to cache.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: COSTUME / TEXTURE PAINT CANVAS -->
+                    <div class="absolute inset-0 bg-[#0c0c0e] flex flex-col p-4 overflow-y-auto hidden" id="wsTabContentCostumes">
+                        <div class="max-w-2xl mx-auto w-full flex flex-col gap-4 bg-[#121214] p-5 rounded-xl border border-zinc-800">
+                            <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                                <div>
+                                    <h3 class="text-white font-bold">Vector Customization Studio</h3>
+                                    <p class="text-zinc-400 text-xs mt-1">Directly paint custom 2D textures projected onto active 3D geometries.</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input type="color" id="paintBrushColor" value="#855cd6" class="w-8 h-8 rounded border-none cursor-pointer">
+                                    <input type="range" id="paintBrushSize" min="2" max="24" value="8" class="w-24 accent-[#855cd6]">
+                                    <button class="bg-zinc-800 hover:bg-zinc-700 text-white font-semibold text-xs py-1.5 px-3 rounded-lg" onclick="clearActivePaintCanvasSurface()">Clear Canvas</button>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-center bg-black/50 py-4 rounded-xl border border-zinc-850">
+                                <canvas class="paint-canvas-frame border border-zinc-700 bg-zinc-900/40 rounded-lg cursor-crosshair shadow-lg" id="paintTargetCanvas" width="360" height="240"></canvas>
+                            </div>
+
+                            <!-- GEMINI IMAGEN ENGINE FOR TEXTURES -->
+                            <div class="bg-zinc-950/60 border border-zinc-850 p-4 rounded-xl flex flex-col gap-3">
+                                <div class="flex items-center gap-1.5 text-xs text-[#a78bfa] font-bold uppercase tracking-wider">
+                                    <i class="ph ph-sparkle"></i> Gemini Texture Synthesis Painter
+                                </div>
+                                <textarea id="aiPromptTexture" class="bg-[#121214] border border-zinc-800 rounded-lg p-2.5 text-xs text-white outline-none focus:border-[#855cd6] resize-none" rows="2" placeholder="Describe the texture pattern to paint on the model (e.g. 'purple high-tech cyber circuitry grid texture, vector art style')"></textarea>
+                                <button id="aiBtnTexture" class="bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold py-2 px-4 rounded-lg text-xs flex items-center justify-center gap-2" onclick="generateTextureWithImagen()">
+                                    <i class="ph ph-sparkle"></i> Create 3D Texture with AI
+                                </button>
+                            </div>
+
+                            <button class="w-full bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold py-2.5 rounded-lg text-xs" onclick="applyCostumePaintCanvas()">
+                                Apply Painted Texture to Current Sprite Map
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: AUDIO SYNTHESIZER LAB -->
+                    <div class="absolute inset-0 bg-[#0c0c0e] flex flex-col p-4 overflow-y-auto hidden" id="wsTabContentSounds">
+                        <div class="max-w-2xl mx-auto w-full flex flex-col gap-4 bg-[#121214] p-5 rounded-xl border border-zinc-800">
+                            <div>
+                                <h3 class="text-white font-bold">Scratch Retro Synthesizer Lab</h3>
+                                <p class="text-zinc-400 text-xs mt-1">Design and play synthesized retro arcade sound effects for triggers.</p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-zinc-950/60 border border-zinc-850 p-4 rounded-xl flex flex-col gap-3">
+                                    <h4 class="text-white font-semibold text-xs flex items-center gap-1"><i class="ph ph-waveform"></i> Oscillator</h4>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[10px] text-zinc-500 font-bold uppercase">Waveform Type</label>
+                                        <select id="synthWaveform" class="bg-[#121214] border border-zinc-800 text-white rounded p-1.5 text-xs outline-none focus:border-[#855cd6]">
+                                            <option value="sine">Sine (Classic / Soft)</option>
+                                            <option value="sawtooth">Sawtooth (Sizzling Retro)</option>
+                                            <option value="triangle">Triangle (Warm Flute)</option>
+                                            <option value="square">Square (8-Bit Arcade)</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] text-zinc-500 font-bold uppercase flex justify-between">Base Freq <span id="lblBaseFreq" class="text-zinc-400">440Hz</span></label>
+                                        <input type="range" id="synthBaseFreq" min="100" max="2000" value="440" class="w-full accent-[#855cd6]" oninput="document.getElementById('lblBaseFreq').innerText = this.value + 'Hz'">
+                                    </div>
+                                    <div class="flex flex-col gap-1">
+                                        <label class="text-[10px] text-zinc-500 font-bold uppercase flex justify-between">Duration <span id="lblDuration" class="text-zinc-400">0.3s</span></label>
+                                        <input type="range" id="synthDuration" min="0.1" max="2" step="0.1" value="0.3" class="w-full accent-[#855cd6]" oninput="document.getElementById('lblDuration').innerText = this.value + 's'">
+                                    </div>
+                                </div>
+
+                                <div class="bg-zinc-950/60 border border-zinc-850 p-4 rounded-xl flex flex-col gap-3 justify-between">
+                                    <div>
+                                        <h4 class="text-white font-semibold text-xs flex items-center gap-1"><i class="ph ph-sliders"></i> Filters & Modulation</h4>
+                                        <div class="flex items-center gap-2 mt-3">
+                                            <input type="checkbox" id="synthLaserEffect" class="rounded accent-[#855cd6]">
+                                            <label for="synthLaserEffect" class="text-xs text-zinc-300">Exponential Frequency Sweep (Laser)</label>
+                                        </div>
+                                        <div class="flex items-center gap-2 mt-3">
+                                            <input type="checkbox" id="synthBoingEffect" class="rounded accent-[#855cd6]">
+                                            <label for="synthBoingEffect" class="text-xs text-zinc-300">Boing Spring Modulation</label>
+                                        </div>
+                                    </div>
+                                    <button class="w-full bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold py-2.5 rounded-lg text-xs" onclick="previewSynthAudio()">
+                                        Test Sound Frequency
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="h-px bg-zinc-800 my-1"></div>
+
+                            <h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wide">Sound Effects Library</h4>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button class="bg-[#1a1a1e] border border-zinc-800 hover:border-[#855cd6] hover:bg-zinc-850 p-3 rounded-xl flex flex-col items-center justify-center gap-1 text-xs" onclick="registerAndPlaySound('meow')">
+                                    <i class="ph ph-smiley-cat text-xl text-yellow-400"></i>
+                                    <span>Meow.wav</span>
+                                </button>
+                                <button class="bg-[#1a1a1e] border border-zinc-800 hover:border-[#855cd6] hover:bg-zinc-850 p-3 rounded-xl flex flex-col items-center justify-center gap-1 text-xs" onclick="registerAndPlaySound('laser')">
+                                    <i class="ph ph-lightning text-xl text-cyan-400"></i>
+                                    <span>Laser.wav</span>
+                                </button>
+                                <button class="bg-[#1a1a1e] border border-zinc-800 hover:border-[#855cd6] hover:bg-zinc-850 p-3 rounded-xl flex flex-col items-center justify-center gap-1 text-xs" onclick="registerAndPlaySound('boing')">
+                                    <i class="ph ph-bounce text-xl text-emerald-400"></i>
+                                    <span>Boing.wav</span>
+                                </button>
+                                <button class="bg-[#1a1a1e] border border-zinc-800 hover:border-[#855cd6] hover:bg-zinc-850 p-3 rounded-xl flex flex-col items-center justify-center gap-1 text-xs" onclick="registerAndPlaySound('pop')">
+                                    <i class="ph ph-sparkles text-xl text-pink-400"></i>
+                                    <span>Pop.wav</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CO-STUDIO PANEL BOTTOM BAR -->
+                <div class="bg-zinc-900 border-t border-zinc-800 p-3 shrink-0 flex flex-col gap-2">
+                    <div class="flex items-center gap-1 text-xs text-[#a78bfa] font-bold uppercase tracking-wider">
+                        <i class="ph ph-sparkle"></i> Gemini Block Copilot Compiler
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="aiPromptBlocks" class="flex-grow bg-black border border-zinc-800 text-white rounded-lg px-3 py-1.5 text-xs outline-none focus:border-[#855cd6]" placeholder="e.g. 'create a repeating loop rotating sprite on Z-Axis by 15 degrees'">
+                        <button id="aiBtnBlocks" class="bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold py-1.5 px-4 rounded-lg text-xs" onclick="generateBlocksWithGemini()">
+                            Build Logic
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="panel-view" id="viewProfile" style="overflow-y:auto;">
-            <div class="community-container" style="max-width: 650px;">
-                <div style="background: var(--panel-card); border: 1px solid #1f1f1f; padding: 2.5rem; border-radius: 12px; display:flex; flex-direction:column; gap:1.5rem;">
-                    <h2 style="margin:0;">Profile Node Settings</h2>
-                    <div class="control-group">
-                        <label>Custom Profile Username</label>
-                        <input type="text" id="profileUserField" class="text-input" style="font-size:1.1rem; font-weight:bold;" oninput="applyAccountModification()">
+        <!-- MODULE B: DISCOVER EXPLORE FEED -->
+        <div class="panel-view absolute inset-0 bg-[#0c0c0e] overflow-y-auto hidden" id="viewExplore">
+            <div class="max-w-5xl mx-auto py-6 px-4 flex flex-col gap-6">
+                <!-- Row 1: Gemini AI Curated Featured Projects -->
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2 mb-3">
+                        <i class="ph ph-sparkle text-[#ffab19]"></i> Gemini AI Featured Masterpieces
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="featuredProjectsGrid">
+                        <!-- Simulated High Quality AI Choices filled dynamically -->
                     </div>
-                    <div class="control-group">
-                        <label>Profile Biography</label>
-                        <textarea id="profileBioField" class="text-input" style="height:100px; font-family:inherit; resize:none;" oninput="applyAccountModification()"></textarea>
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:1rem; border-radius:6px; border:1px solid #1f1f1f;">
-                        <div>
-                            <div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Connection Stream Route</div>
-                            <div id="profileNetworkLabel" style="font-weight:bold; margin-top:0.25rem;">Handshake loop...</div>
+                </div>
+
+                <!-- Row 2: Shared 3D Mod Community Feed -->
+                <div class="border-t border-zinc-800 pt-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-planet text-[#855cd6]"></i> Community Shared Simulations
+                        </h2>
+                        <!-- Search Filters -->
+                        <div class="flex gap-2">
+                            <input type="text" id="exploreSearch" placeholder="Search projects/studios..." class="bg-[#121214] border border-zinc-800 rounded-lg px-2.5 py-1 text-xs text-white" oninput="renderExploreSuite()">
                         </div>
-                        <button class="btn-action-outline" id="globalFollowBtn" onclick="toggleNetworkFollowGraph()">Follow Account</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="exploreGrid"></div>
+                </div>
+
+                <!-- Row 3: Scratch Community Studios Section -->
+                <div class="border-t border-zinc-800 pt-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="ph ph-folder-user text-[#ff4c4c]"></i> Interactive Community Studios
+                        </h2>
+                        <button class="bg-[#ffab19] text-black font-bold text-xs py-1 px-3 rounded-lg flex items-center gap-1" onclick="triggerCreateStudioFlow()">
+                            <i class="ph ph-plus-circle"></i> Create Studio
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="studiosExploreGrid"></div>
+                </div>
+
+                <!-- Row 4: Follower Activity Feed (What's Happening) -->
+                <div class="border-t border-zinc-800 pt-5">
+                    <h2 class="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-3">What's Happening (Follower Activities)</h2>
+                    <div class="bg-[#121214] border border-zinc-850 p-4 rounded-xl flex flex-col gap-2 max-h-[200px] overflow-y-auto" id="followerActivityLog">
+                        <!-- Dynamic feed posts from followed users -->
+                    </div>
+                </div>
+
+                <!-- Row 5: Global Comments Stack -->
+                <div class="bg-[#121214] border border-zinc-850 p-6 rounded-2xl flex flex-col gap-4 mt-2">
+                    <h3 class="text-white font-bold text-sm flex items-center gap-1.5"><i class="ph ph-chats"></i> Global Developer Relay Channel</h3>
+                    <div class="bg-black/60 border border-zinc-850 rounded-xl p-4 h-[160px] overflow-y-auto flex flex-col gap-3" id="commentsHistoryStack"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="commentInputField" class="flex-grow bg-[#121214] border border-zinc-800 text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#855cd6]" placeholder="Relay your comment down to the network stack...">
+                        <button class="bg-[#855cd6] hover:bg-[#9773e3] text-black font-bold px-4 py-2 rounded-lg text-xs" onclick="postGlobalNetworkComment()">Post comment</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="server-status-ribbon" id="serverTypeRibbon">Offline Engine Sync</div>
+        <!-- MODULE C: PROFILE CONFIGURATION -->
+        <div class="panel-view absolute inset-0 bg-[#0c0c0e] overflow-y-auto hidden" id="viewProfile">
+            <div class="max-w-4xl mx-auto py-8 px-4 flex flex-col gap-6">
+                
+                <!-- Main Header: Identity Hub -->
+                <div class="bg-[#121214] border border-zinc-800 rounded-2xl p-6 flex flex-col md:flex-row gap-6 items-center">
+                    <!-- Profile Picture Selector -->
+                    <div class="flex flex-col items-center gap-2 shrink-0">
+                        <div id="profileAvatarDisplay" class="w-24 h-24 rounded-2xl bg-[#855cd6]/20 border-2 border-[#855cd6] flex items-center justify-center text-4xl">
+                            🐱
+                        </div>
+                        <select id="avatarSelector" class="bg-black border border-zinc-800 text-xs text-white rounded p-1 outline-none" onchange="updateProfileAvatar()">
+                            <option value="🐱">🐱 Scratch Cat</option>
+                            <option value="🚀">🚀 Space Shuttle</option>
+                            <option value="👾">👾 Retro Alien</option>
+                            <option value="🧙">🧙 Code Wizard</option>
+                            <option value="🤖">🤖 Mod Robot</option>
+                        </select>
+                    </div>
+
+                    <!-- Details & Stats -->
+                    <div class="flex-grow flex flex-col gap-2 w-full">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h2 class="text-xl font-bold text-white" id="profileNameHeader">Dev3D_Hacker</h2>
+                                <p class="text-xs text-zinc-500 font-semibold tracking-wider uppercase">Scratch 3D Modder</p>
+                            </div>
+                            <div class="flex gap-4 text-center">
+                                <div class="bg-black/40 border border-zinc-850 px-3 py-1.5 rounded-lg">
+                                    <div class="text-base font-bold text-[#855cd6]" id="followersCountText">12</div>
+                                    <div class="text-[9px] text-zinc-500 uppercase font-bold">Followers</div>
+                                </div>
+                                <div class="bg-black/40 border border-zinc-850 px-3 py-1.5 rounded-lg">
+                                    <div class="text-base font-bold text-[#ffab19]" id="followingCountText">8</div>
+                                    <div class="text-[9px] text-zinc-500 uppercase font-bold">Following</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2 mt-2">
+                            <label class="text-[10px] text-zinc-500 font-bold uppercase">Biography Stack</label>
+                            <textarea id="profileBioField" class="bg-black border border-zinc-850 text-white rounded-lg p-2.5 text-xs outline-none focus:border-[#855cd6] resize-none" rows="2" oninput="applyAccountModification()"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Followers/Following Grid Hubs -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Following List -->
+                    <div class="bg-[#121214] border border-zinc-800 p-4 rounded-xl flex flex-col gap-3">
+                        <h3 class="text-xs font-bold text-[#855cd6] uppercase tracking-wide">Users I am Following</h3>
+                        <div id="profileFollowingList" class="flex flex-col gap-2 max-h-[160px] overflow-y-auto text-xs text-zinc-400">
+                            <!-- List of followed nodes -->
+                        </div>
+                    </div>
+
+                    <!-- Profile Comments Board -->
+                    <div class="bg-[#121214] border border-zinc-800 p-4 rounded-xl flex flex-col gap-3">
+                        <h3 class="text-xs font-bold text-[#ffab19] uppercase tracking-wide">Profile Comments Wall</h3>
+                        <div class="flex gap-1.5">
+                            <input type="text" id="profileCommentInput" placeholder="Leave a message on this user profile..." class="flex-grow bg-black border border-zinc-800 rounded p-1.5 text-xs text-white">
+                            <button class="bg-[#ffab19] text-black font-bold px-3 rounded text-xs" onclick="postProfileComment()">Add</button>
+                        </div>
+                        <div id="profileCommentsStack" class="flex flex-col gap-2 max-h-[140px] overflow-y-auto text-xs">
+                            <!-- Profile comments stack -->
+                        </div>
+                    </div>
+                </div>
+
+                <div id="profileNetworkLabel" class="text-xs text-zinc-500 font-semibold bg-black/40 p-3 rounded-lg border border-zinc-850">
+                    Initializing variables...
+                </div>
+            </div>
+        </div>
+
+        <div class="server-status-ribbon fixed bottom-4 right-4 py-1.5 px-3 rounded-lg text-xs font-bold text-black z-50 shadow-lg" id="serverTypeRibbon">Offline Sync Loop</div>
     </main>
 
+    <!-- COMPREHENSIVE SCRATCH 3D-AXIS CATEGORY TOOLBOX -->
     <xml id="blocklyToolboxStructure" style="display: none">
-        <category name="Motion" colour="#4C97FF">
+        <category name="Motion 3D" colour="#4C97FF">
             <block type="motion_movesteps"><value name="STEPS"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+            <block type="motion_changezby"><value name="ZVAL"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+            <block type="motion_setzto"><value name="ZVAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value></block>
+            <block type="motion_turn3d"><field name="AXIS">Y</field><value name="DEGREES"><shadow type="math_number"><field name="NUM">15</field></shadow></value></block>
+            <block type="motion_goto3d">
+                <value name="X"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+                <value name="Y"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+                <value name="Z"><shadow type="math_number"><field name="NUM">0</field></shadow></value>
+            </block>
         </category>
-        <category name="Looks" colour="#9966FF">
-            <block type="looks_say"><value name="MESSAGE"><shadow type="text"><field name="TEXT">Studio Mod Active</field></shadow></value></block>
+        <category name="Looks 3D" colour="#9966FF">
+            <block type="looks_say"><value name="MESSAGE"><shadow type="text"><field name="TEXT">Classic 3D Scratch!</field></shadow></value></block>
+            <block type="looks_setzscale"><value name="ZSCALE"><shadow type="math_number"><field name="NUM">100</field></shadow></value></block>
+            <block type="looks_changeeffectby"><field name="EFFECT">color</field><value name="CHANGE"><shadow type="math_number"><field name="NUM">25</field></shadow></value></block>
+            <block type="looks_show"></block>
+            <block type="looks_hide"></block>
         </category>
-        <category name="Events" colour="#FFBF00" id="eventsTargetNode"></category>
-        <category name="Control" colour="#FFAB19" id="controlTargetNode"></category>
+        <category name="Sound" colour="#D65CD6">
+            <block type="sound_play"><value name="SOUND_MENU"><shadow type="text"><field name="TEXT">meow</field></shadow></value></block>
+            <block type="sound_playsynth"><field name="WAVE">sine</field><value name="FREQ"><shadow type="math_number"><field name="NUM">440</field></shadow></value></block>
+        </category>
+        <category name="Pen 3D" colour="#00B180">
+            <block type="pen_down"></block>
+            <block type="pen_up"></block>
+            <block type="pen_clear"></block>
+            <block type="pen_setcolor"><value name="COLOR"><shadow type="colour_picker"><field name="COLOUR">#2cf27b</field></shadow></value></block>
+            <block type="pen_changesize"><value name="SIZE"><shadow type="math_number"><field name="NUM">1</field></shadow></value></block>
+        </category>
+        <category name="Events" colour="#FFBF00">
+            <block type="event_whenflagclicked"></block>
+            <block type="event_whenkeypressed"><field name="KEY">space</field></block>
+        </category>
+        <category name="Control" colour="#FFAB19">
+            <block type="control_wait"><value name="DURATION"><shadow type="math_number"><field name="NUM">1</field></shadow></value></block>
+            <block type="control_repeat"><value name="TIMES"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+            <block type="control_forever"></block>
+        </category>
+        <category name="Sensing" colour="#4CBFE6">
+            <block type="sensing_keypressed"><field name="KEY">space</field></block>
+            <block type="sensing_distancetocamera"></block>
+            <block type="sensing_timer"></block>
+            <block type="sensing_resettimer"></block>
+        </category>
+        <category name="Operators" colour="#40BF4A">
+            <block type="operator_add"><value name="NUM1"><shadow type="math_number"><field name="NUM"></field></shadow></value><value name="NUM2"><shadow type="math_number"><field name="NUM"></field></shadow></value></block>
+            <block type="operator_random"><value name="FROM"><shadow type="math_number"><field name="NUM">1</field></shadow></value><value name="TO"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+        </category>
+        <category name="Variables" colour="#FF8C1A" custom="VARIABLE"></category>
+        <category name="Lists" colour="#FF661A">
+            <block type="lists_create_empty"></block>
+            <block type="lists_create_with"></block>
+            <block type="lists_repeat">
+                <value name="NUM">
+                    <shadow type="math_number"><field name="NUM">5</field></shadow>
+                </value>
+            </block>
+            <block type="lists_length"></block>
+            <block type="lists_isEmpty"></block>
+            <block type="lists_indexOf"></block>
+            <block type="lists_getIndex"></block>
+            <block type="lists_setIndex"></block>
+        </category>
+        <category name="My Blocks" colour="#FF6680" custom="PROCEDURE"></category>
     </xml>
 
     <script>
         let primaryBlocklyWorkspace = null;
-        let stageExecutionInterval = null;
-        let currentActorTransformX = 0;
-        
+        let isPaintingActiveOnCanvas = false;
+        const apiKey = ""; 
+
+        // Sound hardware node setup
+        const hardwareAudioContextNode = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Custom Notification Controller
+        function showSystemDialog(title, message) {
+            document.getElementById("dialogTitle").innerText = title;
+            document.getElementById("dialogMsg").innerText = message;
+            document.getElementById("systemDialogModal").classList.remove("hidden");
+        }
+
+        function dismissSystemDialog() {
+            document.getElementById("systemDialogModal").classList.add("hidden");
+        }
+
+        // 3D WebGL Coordinates & State Mapping Engine
+        let scene3D, camera3D, renderer3D, grid3D;
+        let isStageRunning = false;
+        let animationFrameId = null;
+
+        // Active State of 3D Sprites
+        let sprites = [];
+        let activeSpriteId = null;
+        let environmentBackdropColor = "#111111";
+
+        // Global key capture logic for classic "Sensing"
+        const pressedKeys = {};
+        window.addEventListener('keydown', (e) => { pressedKeys[e.key.toLowerCase()] = true; });
+        window.addEventListener('keyup', (e) => { pressedKeys[e.key.toLowerCase()] = false; });
+
+        // Classic Workspace Tabs Control
+        let activeWorkspaceTab = 'code';
+
+        // Backpack code register storage array
+        let backpack = [];
+
+        // Dynamic State monitors array
+        let stageMonitors = [
+            { id: "active_name", label: "Active Sprite", value: "", visible: true },
+            { id: "x_pos", label: "Sprite X", value: "0", visible: true },
+            { id: "y_pos", label: "Sprite Y", value: "0", visible: true },
+            { id: "z_pos", label: "Sprite Z", value: "0", visible: true }
+        ];
+
         let authenticatedUserMetadata = { 
             active: false, validatedAge: null, routingChannel: null, 
-            username: "ModDev_Core", bio: "Customizing raw scratch frameworks.", followingActive: false 
+            username: "Dev3D_Hacker", bio: "Manipulating 3D coordinate systems in Blockly.",
+            avatar: "🐱"
         };
+
+        // Social System Variables
+        let followingList = ["SpaceCoder_3D", "BlockStar_Gamer", "AI_Curation_Bot"];
+        let followersList = ["GeomMaster", "RetroPainter", "ScratchWizard3D", "VectorGal"];
+        let mockProfileComments = [
+            { user: "SpaceCoder_3D", text: "Love your new Z-Axis gravity logic blocks!" },
+            { user: "AI_Curation_Bot", text: "Node configured. Scanning your scripts for Featured status curation." }
+        ];
+
+        // Shared database structures inside Mod Studio
+        let initialDefaultMockCommunityProjects = [
+            { id: "proj_f1", title: "Procedural 3D Solar System", author: "SpaceCoder_3D", xml: "", loveCount: 34, favCount: 22, viewCount: 145, comments: [{user: "CodeLover", text: "Amazing orbiting logic!"}], instructions: "Use Arrow Keys to orbit. Run Flag to simulate celestial gravity mechanics.", remixOf: null, aiCurated: true, aiScore: 98 },
+            { id: "proj_f2", title: "Procedural Retro Asteroids", author: "BlockStar_Gamer", xml: "", loveCount: 28, favCount: 19, viewCount: 110, comments: [], instructions: "Press SPACE to ignite laser projectile. Drag cursor to modify space camera views.", remixOf: null, aiCurated: true, aiScore: 94 },
+            { id: "proj_f3", title: "Dynamic Vector 3D Cube", author: "RetroPainter", xml: "", loveCount: 52, favCount: 40, viewCount: 310, comments: [], instructions: "Click background Backdrop Paint template to apply canvas modifications on the fly.", remixOf: "proj_f1", remixAuthor: "SpaceCoder_3D", aiCurated: true, aiScore: 96 }
+        ];
+
+        let studiosDatabase = [
+            { id: "studio_s1", title: "Advanced WebGL 3D Engines", description: "All projects using coordinates, Z scale, or vector mesh transformations.", members: ["SpaceCoder_3D", "RetroPainter"], projects: ["proj_f1", "proj_f3"], comments: [{user: "RetroPainter", text: "Curating all verified procedural projection maps."}] },
+            { id: "studio_s2", title: "Retro Arcade Sound Synths", description: "Showcasing retro audio sweeps, boing curves, and 8-bit oscillator setups.", members: ["BlockStar_Gamer"], projects: ["proj_f2"], comments: [] }
+        ];
+
+        // Selected objects for modal tracking
+        let currentModalProject = null;
+        let currentActiveStudio = null;
 
         function processIncomingGoogleToken(ageParam) {
             authenticatedUserMetadata.active = true;
             authenticatedUserMetadata.validatedAge = ageParam;
             authenticatedUserMetadata.routingChannel = ageParam >= 18 ? "UNRESTRICTED_DEV_SERVER" : "CENSORED_KIDS_SERVER";
             
-            if(ageParam < 18) { authenticatedUserMetadata.username = "SafeCoder_Guest"; }
+            if(ageParam < 18) { authenticatedUserMetadata.username = "SafeCoder_3D"; }
 
-            document.getElementById("authGateCurtain").style.display = "none";
-            document.getElementById("profileUserField").value = authenticatedUserMetadata.username;
-            document.getElementById("profileBioField").value = authenticatedUserMetadata.bio;
+            document.getElementById("authGateCurtain").classList.add("hidden");
+            document.getElementById("profileUserField") ? document.getElementById("profileUserField").value = authenticatedUserMetadata.username : null;
+            document.getElementById("profileBioField") ? document.getElementById("profileBioField").value = authenticatedUserMetadata.bio : null;
 
-            compileDynamicThemeEnvironment();
+            // Load shared database
+            if (!localStorage.getItem("modstudio3d_shared_db")) {
+                localStorage.setItem("modstudio3d_shared_db", JSON.stringify(initialDefaultMockCommunityProjects));
+            }
+            if (!localStorage.getItem("modstudio3d_studios_db")) {
+                localStorage.setItem("modstudio3d_studios_db", JSON.stringify(studiosDatabase));
+            }
+
             initializeBlocklyEngineCore();
+            initializeWebGL3DStage();
+            compileDynamicThemeEnvironment();
             applyAccountModification();
+            initializePaintCanvasListeners();
             loadCachedCommentsStream();
+            setupInitialDefaultSprites();
+            renderBackpackUI();
         }
 
         function switchPanel(panelId) {
             const panels = ['editor', 'explore', 'profile'];
             panels.forEach(id => {
-                document.getElementById(`view${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.remove('active');
-                document.getElementById(`tabBtn${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.remove('active');
+                document.getElementById(`view${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.add('hidden');
+                document.getElementById(`tabBtn${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.remove('text-[#855cd6]', 'bg-zinc-900/50', 'border', 'border-zinc-800');
+                document.getElementById(`tabBtn${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.add('text-zinc-400');
             });
-            document.getElementById(`view${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.add('active');
-            document.getElementById(`tabBtn${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.add('active');
+            document.getElementById(`view${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.remove('hidden');
+            document.getElementById(`tabBtn${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.add('text-[#855cd6]', 'bg-zinc-900/50', 'border', 'border-zinc-800');
+            document.getElementById(`tabBtn${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.remove('text-zinc-400');
+        }
+
+        // Central Workspace Tab Switching Logic
+        function switchWorkspaceTab(tabId) {
+            const tabs = ['code', 'costumes', 'sounds'];
+            tabs.forEach(tab => {
+                document.getElementById(`wsTabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.remove('border-b-2', 'border-[#855cd6]', 'text-white', 'bg-zinc-950');
+                document.getElementById(`wsTabBtn${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('text-zinc-400');
+                document.getElementById(`wsTabContent${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('hidden');
+            });
+
+            activeWorkspaceTab = tabId;
+            document.getElementById(`wsTabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).classList.add('border-b-2', 'border-[#855cd6]', 'text-white', 'bg-zinc-950');
+            document.getElementById(`wsTabBtn${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).classList.remove('text-zinc-400');
+            document.getElementById(`wsTabContent${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).classList.remove('hidden');
+
+            if (tabId === 'code' && primaryBlocklyWorkspace) {
+                Blockly.svgResize(primaryBlocklyWorkspace);
+            }
+        }
+
+        function toggleBackpack() {
+            const backpackCont = document.getElementById("backpackContainer");
+            const backpackArrow = document.getElementById("backpackArrow");
+            if (backpackCont.classList.contains("h-0")) {
+                backpackCont.classList.remove("h-0");
+                backpackCont.classList.add("h-32", "border-t", "border-zinc-850");
+                backpackArrow.innerHTML = '<i class="ph ph-caret-down"></i>';
+            } else {
+                backpackCont.classList.add("h-0");
+                backpackCont.classList.remove("h-32", "border-t", "border-zinc-850");
+                backpackArrow.innerHTML = '<i class="ph ph-caret-up"></i>';
+            }
         }
 
         function compileDynamicThemeEnvironment() {
             const pickedColorHex = document.getElementById("themeColorSelector").value;
             document.documentElement.style.setProperty('--user-accent', pickedColorHex);
-            if (primaryBlocklyWorkspace) Blockly.WorkspaceSvg.prototype.updateToolbox(document.getElementById('blocklyToolboxStructure'));
+            if (primaryBlocklyWorkspace) {
+                Blockly.WorkspaceSvg.prototype.updateToolbox(document.getElementById('blocklyToolboxStructure'));
+            }
         }
 
         function initializeBlocklyEngineCore() {
-            const pickedAccent = document.getElementById("themeColorSelector").value;
-            Blockly.Blocks['event_whenstopsignclicked'] = { init: function() { this.jsonInit({ "message0": "when stop sign clicked 🛑", "nextStatement": null, "colour": "#FFBF00", "hat": true }); } };
-            Blockly.Blocks['sensing_modstudiotime'] = { init: function() { this.jsonInit({ "message0": "current time [ %1 ]", "args0": [{ "type": "field_dropdown", "name": "TIME_UNIT", "options": [["hour","hour"], ["minute","minute"]] }], "output": "Number", "colour": pickedAccent }); } };
+            Blockly.Blocks['motion_changezby'] = { init: function() { this.jsonInit({ "message0": "change Z by %1", "args0": [{"type": "input_value", "name": "ZVAL", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#4C97FF" }); } };
+            Blockly.Blocks['motion_setzto'] = { init: function() { this.jsonInit({ "message0": "set Z to %1", "args0": [{"type": "input_value", "name": "ZVAL", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#4C97FF" }); } };
+            Blockly.Blocks['motion_turn3d'] = { init: function() { this.jsonInit({ "message0": "turn 3D around [ %1 ] by %2 degrees", "args0": [{"type": "field_dropdown", "name": "AXIS", "options": [["X","X"],["Y","Y"],["Z","Z"]]},{"type": "input_value", "name": "DEGREES", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#4C97FF" }); } };
+            Blockly.Blocks['motion_goto3d'] = { init: function() { this.jsonInit({ "message0": "go to X: %1 Y: %2 Z: %3", "args0": [{"type": "input_value", "name": "X", "check": "Number"},{"type": "input_value", "name": "Y", "check": "Number"},{"type": "input_value", "name": "Z", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#4C97FF" }); } };
+            
+            Blockly.Blocks['looks_say'] = { init: function() { this.jsonInit({ "message0": "say %1 in 3D bubble", "args0": [{"type": "input_value", "name": "MESSAGE", "check": "String"}], "previousStatement": null, "nextStatement": null, "colour": "#9966FF" }); } };
+            Blockly.Blocks['looks_setzscale'] = { init: function() { this.jsonInit({ "message0": "set Z scale to %1 %", "args0": [{"type": "input_value", "name": "ZSCALE", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#9966FF" }); } };
+            Blockly.Blocks['looks_changeeffectby'] = { init: function() { this.jsonInit({ "message0": "change %1 effect by %2", "args0": [{"type": "field_dropdown", "name": "EFFECT", "options": [["color","color"],["wireframe","wireframe"]]},{"type": "input_value", "name": "CHANGE", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#9966FF" }); } };
+            Blockly.Blocks['looks_show'] = { init: function() { this.jsonInit({ "message0": "show sprite 3D", "previousStatement": null, "nextStatement": null, "colour": "#9966FF" }); } };
+            Blockly.Blocks['looks_hide'] = { init: function() { this.jsonInit({ "message0": "hide sprite 3D", "previousStatement": null, "nextStatement": null, "colour": "#9966FF" }); } };
 
-            document.getElementById("eventsTargetNode").innerHTML = `
-                <block type="event_whenstopsignclicked"></block>
-                <block type="control_start_as_clone"></block>
-                <block type="control_create_clone_of"></block>
-                <block type="control_delete_this_clone"></block>
-            `;
+            Blockly.Blocks['pen_down'] = { init: function() { this.jsonInit({ "message0": "pen down 3D", "previousStatement": null, "nextStatement": null, "colour": "#00B180" }); } };
+            Blockly.Blocks['pen_up'] = { init: function() { this.jsonInit({ "message0": "pen up 3D", "previousStatement": null, "nextStatement": null, "colour": "#00B180" }); } };
+            Blockly.Blocks['pen_clear'] = { init: function() { this.jsonInit({ "message0": "clear 3D trails", "previousStatement": null, "nextStatement": null, "colour": "#00B180" }); } };
+            Blockly.Blocks['pen_setcolor'] = { init: function() { this.jsonInit({ "message0": "set pen trail color to %1", "args0": [{"type": "input_value", "name": "COLOR"}], "previousStatement": null, "nextStatement": null, "colour": "#00B180" }); } };
+            Blockly.Blocks['pen_changesize'] = { init: function() { this.jsonInit({ "message0": "change pen trail size by %1", "args0": [{"type": "input_value", "name": "SIZE", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#00B180" }); } };
 
-            const customTimeCategoryXml = document.createElement('category');
-            customTimeCategoryXml.setAttribute('name', 'Time Blocks');
-            customTimeCategoryXml.setAttribute('colour', pickedAccent);
-            customTimeCategoryXml.innerHTML = `<block type="sensing_modstudiotime"></block>`;
-            document.getElementById("blocklyToolboxStructure").appendChild(customTimeCategoryXml);
+            Blockly.Blocks['sensing_keypressed'] = { init: function() { this.jsonInit({ "message0": "key [ %1 ] pressed?", "args0": [{"type": "field_dropdown", "name": "KEY", "options": [["space","space"],["up arrow","up"],["down arrow","down"],["left arrow","left"],["right arrow","right"],["w","w"],["a","a"],["s","s"],["d","d"]]}], "output": "Boolean", "colour": "#4CBFE6" }); } };
+            Blockly.Blocks['sensing_distancetocamera'] = { init: function() { this.jsonInit({ "message0": "distance to 3D camera view", "output": "Number", "colour": "#4CBFE6" }); } };
+            Blockly.Blocks['sensing_timer'] = { init: function() { this.jsonInit({ "message0": "timer state", "output": "Number", "colour": "#4CBFE6" }); } };
+            Blockly.Blocks['sensing_resettimer'] = { init: function() { this.jsonInit({ "message0": "reset timer", "previousStatement": null, "nextStatement": null, "colour": "#4CBFE6" }); } };
+
+            Blockly.Blocks['sound_playsynth'] = { init: function() { this.jsonInit({ "message0": "play synth waveform %1 at frequency %2 Hz", "args0": [{"type": "field_dropdown", "name": "WAVE", "options": [["sine","sine"],["sawtooth","sawtooth"],["triangle","triangle"],["square","square"]]},{"type": "input_value", "name": "FREQ", "check": "Number"}], "previousStatement": null, "nextStatement": null, "colour": "#D65CD6" }); } };
+
+            // Create Dark Custom Theme Instance
+            const darkWorkspaceTheme = Blockly.Theme.defineTheme('darkWorkspaceTheme', {
+                'base': Blockly.Themes.Classic,
+                'componentStyles': {
+                    'workspaceBackgroundColour': '#0c0c0e',
+                    'toolboxBackgroundColour': '#121214',
+                    'toolboxForegroundColour': '#ffffff',
+                    'flyoutBackgroundColour': '#121214',
+                    'flyoutForegroundColour': '#ffffff',
+                    'scrollbarColour': '#27272a',
+                    'scrollbarOpacity': 0.6,
+                    'insertionMarkerColour': '#855cd6',
+                    'insertionMarkerOpacity': 0.3
+                }
+            });
 
             primaryBlocklyWorkspace = Blockly.inject('blocklyCanvasContainer', {
                 toolbox: document.getElementById('blocklyToolboxStructure'),
-                trashcan: true
+                theme: darkWorkspaceTheme,
+                trashcan: true,
+                grid: {
+                    spacing: 20,
+                    length: 3,
+                    colour: '#18181b',
+                    snap: true
+                },
+                zoom: {
+                    controls: true,
+                    wheel: true,
+                    startScale: 0.95,
+                    maxScale: 3,
+                    minScale: 0.3,
+                    scaleSpeed: 1.2
+                }
             });
         }
 
-        // Live Stage Playback Frame Controller
-        function triggerStagePlayback(actionState) {
-            const sprite = document.getElementById("simulatedSpriteElement");
-            clearInterval(stageExecutionInterval);
+        // Three.js 3D WebGL Rendering Core Stage
+        function initializeWebGL3DStage() {
+            const container = document.getElementById("stageCanvas3D");
+            const w = container.clientWidth;
+            const h = container.clientHeight;
 
-            if(actionState === 'play') {
-                alert("🟢 Executing live abstract Blockly source array commands...");
-                stageExecutionInterval = setInterval(() => {
-                    currentActorTransformX = (currentActorTransformX + 15) % 180;
-                    sprite.style.transform = `translateX(${currentActorTransformX}px)`;
-                }, 300);
-            } else if (actionState === 'pause') {
-                alert("🟡 Pausing timeline evaluation loops.");
-            } else if (actionState === 'stop') {
-                currentActorTransformX = 0;
-                sprite.style.transform = `translateX(0px)`;
-                alert("🛑 Terminating compiler threads. Stage runtime pipeline coordinates zeroed out.");
-            }
+            scene3D = new THREE.Scene();
+            scene3D.background = new THREE.Color(0x0c0c0e);
+            
+            camera3D = new THREE.PerspectiveCamera(45, w / h, 1, 1000);
+            camera3D.position.set(0, 40, 100);
+            camera3D.lookAt(0, 0, 0);
+
+            renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer3D.setSize(w, h);
+            container.appendChild(renderer3D.domElement);
+
+            // Light up scene 
+            const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+            scene3D.add(ambient);
+
+            const pointLight = new THREE.PointLight(0xffffff, 0.8);
+            pointLight.position.set(50, 100, 50);
+            scene3D.add(pointLight);
+
+            // Classic Grid Playground visual helper
+            grid3D = new THREE.GridHelper(200, 20, 0x855cd6, 0x27272a);
+            grid3D.position.y = -0.5;
+            scene3D.add(grid3D);
+
+            // Manual camera drag mouse rotating binding controls (As per instructions guidelines)
+            let isDragging = false;
+            let prevMousePos = { x: 0, y: 0 };
+            
+            container.addEventListener('mousedown', (e) => { isDragging = true; prevMousePos = { x: e.clientX, y: e.clientY }; });
+            container.addEventListener('mousemove', (e) => {
+                if(!isDragging) return;
+                const deltaX = e.clientX - prevMousePos.x;
+                const deltaY = e.clientY - prevMousePos.y;
+
+                camera3D.position.x = camera3D.position.x * Math.cos(deltaX * 0.005) - camera3D.position.z * Math.sin(deltaX * 0.005);
+                camera3D.position.z = camera3D.position.x * Math.sin(deltaX * 0.005) + camera3D.position.z * Math.cos(deltaX * 0.005);
+                camera3D.position.y += deltaY * 0.1;
+                camera3D.lookAt(0, 0, 0);
+
+                prevMousePos = { x: e.clientX, y: e.clientY };
+            });
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            animateLoop();
         }
 
-        // Sprite asset and background asset editors
-        function selectStageAsset(assetType, assetKey) {
-            const sprite = document.getElementById("simulatedSpriteElement");
-            const stage = document.getElementById("simulatedStageBackground");
+        // Setup Initial Default Sprites Array matching classic Scratch templates
+        function setupInitialDefaultSprites() {
+            sprites = [
+                {
+                    id: 'sprite_cat',
+                    name: '3D Plane Cat',
+                    type: 'box',
+                    x: 0,
+                    y: 10,
+                    z: 0,
+                    scale: 100,
+                    direction: 90,
+                    visible: true,
+                    colorEffect: 0,
+                    wireframe: true,
+                    penDown: false,
+                    penColor: '#ffab19',
+                    penSize: 3,
+                    penPoints: [],
+                    mesh: null,
+                    penLineMesh: null
+                },
+                {
+                    id: 'sprite_star',
+                    name: 'Orbiting Sphere',
+                    type: 'sphere',
+                    x: 30,
+                    y: 15,
+                    z: -20,
+                    scale: 100,
+                    direction: 0,
+                    visible: true,
+                    colorEffect: 120,
+                    wireframe: false,
+                    penDown: true,
+                    penColor: '#ff4c4c',
+                    penSize: 4,
+                    penPoints: [],
+                    mesh: null,
+                    penLineMesh: null
+                }
+            ];
 
-            if(assetType === 'sprite') {
-                document.querySelectorAll("[id^='sprite_']").forEach(el => el.classList.remove('selected'));
-                document.getElementById(`sprite_${assetKey}`).classList.add('selected');
-                
-                if(assetKey === 'cat') sprite.innerText = "🐈";
-                if(assetKey === 'cube') sprite.innerText = "📦";
-                if(assetKey === 'ghost') sprite.innerText = "👻";
+            // Render meshes
+            sprites.forEach(sprite => renderSpriteInScene(sprite));
+            selectActiveSprite(sprites[0].id);
+        }
+
+        function renderSpriteInScene(sprite) {
+            // Remove old mesh if exist
+            if (sprite.mesh) {
+                scene3D.remove(sprite.mesh);
+            }
+
+            let geometry;
+            if (sprite.type === 'box') {
+                geometry = new THREE.BoxGeometry(15, 15, 15);
+            } else if (sprite.type === 'sphere') {
+                geometry = new THREE.SphereGeometry(10, 32, 32);
+            } else if (sprite.type === 'cone') {
+                geometry = new THREE.ConeGeometry(10, 20, 32);
+            } else if (sprite.type === 'torus') {
+                geometry = new THREE.TorusGeometry(8, 3, 16, 100);
+            }
+
+            const baseColor = new THREE.Color().setHSL(sprite.colorEffect / 360, 1.0, 0.5);
+            const material = new THREE.MeshStandardMaterial({
+                color: baseColor,
+                wireframe: sprite.wireframe,
+                roughness: 0.4,
+                metalness: 0.1
+            });
+
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(sprite.x, sprite.y, sprite.z);
+            mesh.rotation.y = THREE.MathUtils.degToRad(sprite.direction);
+            mesh.visible = sprite.visible;
+
+            scene3D.add(mesh);
+            sprite.mesh = mesh;
+        }
+
+        function selectActiveSprite(spriteId) {
+            activeSpriteId = spriteId;
+            const sprite = sprites.find(s => s.id === spriteId);
+            if (!sprite) return;
+
+            // Update UI Properties Panels
+            document.getElementById("spriteNameField").value = sprite.name;
+            document.getElementById("spriteXField").value = Math.round(sprite.x);
+            document.getElementById("spriteYField").value = Math.round(sprite.y);
+            document.getElementById("spriteZField").value = Math.round(sprite.z);
+            document.getElementById("spriteScaleField").value = sprite.scale;
+            document.getElementById("spriteDirectionField").value = sprite.direction;
+
+            // Highlight Show/Hide Buttons
+            if (sprite.visible) {
+                document.getElementById("btnShowSprite").className = "flex-grow bg-[#855cd6] text-black font-bold py-1 rounded text-center transition-all cursor-pointer";
+                document.getElementById("btnHideSprite").className = "flex-grow bg-zinc-800 text-zinc-400 font-bold py-1 rounded text-center transition-all cursor-pointer";
             } else {
-                document.querySelectorAll("[id^='bg_']").forEach(el => el.classList.remove('selected'));
-                document.getElementById(`bg_${assetKey}`).classList.add('selected');
+                document.getElementById("btnShowSprite").className = "flex-grow bg-zinc-800 text-zinc-400 font-bold py-1 rounded text-center transition-all cursor-pointer";
+                document.getElementById("btnHideSprite").className = "flex-grow bg-red-500 text-black font-bold py-1 rounded text-center transition-all cursor-pointer";
+            }
 
-                if(assetKey === 'dark') stage.style.background = "#111";
-                if(assetKey === 'grid') stage.style.background = "radial-gradient(circle, #222 10%, transparent 11%)", stage.style.backgroundSize = "15px 15px";
+            renderSpritesListUI();
+        }
+
+        function updateActiveSpriteProperties() {
+            if (!activeSpriteId) return;
+            const sprite = sprites.find(s => s.id === activeSpriteId);
+            if (!sprite) return;
+
+            sprite.name = document.getElementById("spriteNameField").value;
+            sprite.x = parseFloat(document.getElementById("spriteXField").value) || 0;
+            sprite.y = parseFloat(document.getElementById("spriteYField").value) || 0;
+            sprite.z = parseFloat(document.getElementById("spriteZField").value) || 0;
+            sprite.scale = parseFloat(document.getElementById("spriteScaleField").value) || 100;
+            sprite.direction = parseFloat(document.getElementById("spriteDirectionField").value) || 0;
+
+            if (sprite.mesh) {
+                sprite.mesh.position.set(sprite.x, sprite.y, sprite.z);
+                sprite.mesh.scale.setScalar(sprite.scale / 100);
+                sprite.mesh.rotation.y = THREE.MathUtils.degToRad(sprite.direction);
+            }
+
+            renderSpritesListUI();
+        }
+
+        function setSpriteVisibility(visible) {
+            if (!activeSpriteId) return;
+            const sprite = sprites.find(s => s.id === activeSpriteId);
+            if (!sprite) return;
+            sprite.visible = visible;
+            if (sprite.mesh) sprite.mesh.visible = visible;
+            selectActiveSprite(activeSpriteId);
+        }
+
+        function addNew3DObject() {
+            const types = ['box', 'sphere', 'cone', 'torus'];
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const newId = 'sprite_' + Date.now();
+            const newSprite = {
+                id: newId,
+                name: `3D ${randomType.charAt(0).toUpperCase() + randomType.slice(1)} ${sprites.length + 1}`,
+                type: randomType,
+                x: (Math.random() - 0.5) * 60,
+                y: Math.random() * 25 + 5,
+                z: (Math.random() - 0.5) * 60,
+                scale: 100,
+                direction: Math.floor(Math.random() * 360),
+                visible: true,
+                colorEffect: Math.floor(Math.random() * 360),
+                wireframe: false,
+                penDown: false,
+                penColor: '#' + Math.floor(Math.random()*16777215).toString(16),
+                penSize: 3,
+                penPoints: [],
+                mesh: null,
+                penLineMesh: null
+            };
+
+            sprites.push(newSprite);
+            renderSpriteInScene(newSprite);
+            selectActiveSprite(newId);
+        }
+
+        function renderSpritesListUI() {
+            const container = document.getElementById("spritesListGrid");
+            container.innerHTML = "";
+
+            sprites.forEach(s => {
+                const isSelected = s.id === activeSpriteId;
+                const card = document.createElement("div");
+                card.className = `p-2 bg-[#1a1a1e] border-2 rounded-lg text-center cursor-pointer flex flex-col items-center justify-center gap-1 hover:border-[#855cd6]/80 transition-all ${isSelected ? 'border-[#855cd6]' : 'border-zinc-850'}`;
+                card.onclick = () => selectActiveSprite(s.id);
+
+                let iconClass = "ph ph-cube";
+                if (s.type === 'sphere') iconClass = "ph ph-circle";
+                if (s.type === 'cone') iconClass = "ph ph-triangle";
+                if (s.type === 'torus') iconClass = "ph ph-circle-dashed";
+
+                card.innerHTML = `
+                    <div class="text-xl text-[#a78bfa]"><i class="${iconClass}"></i></div>
+                    <span class="text-[11px] font-semibold truncate max-w-full text-white">${s.name}</span>
+                    <div class="text-[9px] text-zinc-500">${Math.round(s.x)}, ${Math.round(s.y)}, ${Math.round(s.z)}</div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Re-render monitors
+            updateStageMonitorsUI();
+        }
+
+        function updateStageMonitorsUI() {
+            const container = document.getElementById("stageMonitorsContainer");
+            container.innerHTML = "";
+
+            const activeSprite = sprites.find(s => s.id === activeSpriteId);
+            if (!activeSprite) return;
+
+            stageMonitors[0].value = activeSprite.name;
+            stageMonitors[1].value = Math.round(activeSprite.x);
+            stageMonitors[2].value = Math.round(activeSprite.y);
+            stageMonitors[3].value = Math.round(activeSprite.z);
+
+            stageMonitors.forEach(monitor => {
+                if (!monitor.visible) return;
+                const node = document.createElement("div");
+                node.className = "flex items-center gap-2 bg-[#121214]/90 border border-zinc-800 px-2.5 py-1 rounded-md text-[11px] text-[#f4f4f5] shadow-lg shadow-black/40 font-mono";
+                node.innerHTML = `
+                    <span class="text-zinc-400 font-sans font-bold">${monitor.label}:</span>
+                    <span class="text-[#2cf27b] font-bold">${monitor.value}</span>
+                `;
+                container.appendChild(node);
+            });
+        }
+
+        // Sound Synthesis Pipeline Controls
+        function previewSynthAudio() {
+            const wave = document.getElementById("synthWaveform").value;
+            const freq = parseFloat(document.getElementById("synthBaseFreq").value);
+            const duration = parseFloat(document.getElementById("synthDuration").value);
+            const isLaser = document.getElementById("synthLaserEffect").checked;
+            const isBoing = document.getElementById("synthBoingEffect").checked;
+
+            triggerSynthesizerBeep(freq, wave, duration, isLaser, isBoing);
+        }
+
+        function registerAndPlaySound(soundKey) {
+            if (soundKey === 'meow') triggerSynthesizerBeep(880, 'sine', 0.15, false, false);
+            if (soundKey === 'laser') triggerSynthesizerBeep(1200, 'sawtooth', 0.35, true, false);
+            if (soundKey === 'boing') triggerSynthesizerBeep(450, 'triangle', 0.45, false, true);
+            if (soundKey === 'pop') triggerSynthesizerBeep(1500, 'sine', 0.05, false, false);
+        }
+
+        // Core Synthesizer Processor
+        function triggerSynthesizerBeep(freq = 440, type = 'sine', duration = 0.2, isLaser = false, isBoing = false) {
+            try {
+                if (hardwareAudioContextNode.state === 'suspended') {
+                    hardwareAudioContextNode.resume();
+                }
+                const osc = hardwareAudioContextNode.createOscillator();
+                const gain = hardwareAudioContextNode.createGain();
+                
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, hardwareAudioContextNode.currentTime);
+                
+                if (isLaser) osc.frequency.exponentialRampToValueAtTime(80, hardwareAudioContextNode.currentTime + duration);
+                if (isBoing) {
+                    osc.frequency.linearRampToValueAtTime(900, hardwareAudioContextNode.currentTime + (duration * 0.5));
+                    osc.frequency.linearRampToValueAtTime(300, hardwareAudioContextNode.currentTime + duration);
+                }
+
+                gain.gain.setValueAtTime(0.25, hardwareAudioContextNode.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, hardwareAudioContextNode.currentTime + duration);
+                
+                osc.connect(gain);
+                gain.connect(hardwareAudioContextNode.destination);
+                osc.start();
+                osc.stop(hardwareAudioContextNode.currentTime + duration);
+            } catch(e) { 
+                console.error("Audio pipeline initialization requires user validation gesture.", e); 
             }
         }
 
-        // Account Modification Profiler Protection Logic Layer
+        // Costume Paint Studio Implementation
+        function initializePaintCanvasListeners() {
+            const canvas = document.getElementById("paintTargetCanvas");
+            canvas.addEventListener('mousedown', (e) => { isPaintingActiveOnCanvas = true; paintTrackStroke(e); });
+            canvas.addEventListener('mousemove', paintTrackStroke);
+            window.addEventListener('mouseup', () => isPaintingActiveOnCanvas = false);
+        }
+
+        function paintTrackStroke(e) {
+            if(!isPaintingActiveOnCanvas) return;
+            const canvas = document.getElementById("paintTargetCanvas");
+            const ctx = canvas.getContext("2d");
+            const rect = canvas.getBoundingClientRect();
+            
+            ctx.fillStyle = document.getElementById("paintBrushColor").value;
+            const size = document.getElementById("paintBrushSize").value;
+            
+            ctx.beginPath();
+            ctx.arc(e.clientX - rect.left, e.clientY - rect.top, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        function clearActivePaintCanvasSurface() {
+            const canvas = document.getElementById("paintTargetCanvas");
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function applyCostumePaintCanvas() {
+            if (!activeSpriteId) return;
+            const sprite = sprites.find(s => s.id === activeSpriteId);
+            if (!sprite || !sprite.mesh) return;
+
+            const canvas = document.getElementById("paintTargetCanvas");
+            const dataUrl = canvas.toDataURL();
+
+            const loader = new THREE.TextureLoader();
+            loader.load(dataUrl, (texture) => {
+                sprite.mesh.material = new THREE.MeshStandardMaterial({
+                    map: texture,
+                    transparent: true,
+                    roughness: 0.5
+                });
+                showSystemDialog("🎨 Costume Applied", `Custom hand-painted texture projected directly onto sprite: "${sprite.name}".`);
+            });
+        }
+
+        // Apply background/Skybox maps
+        function applyAssetToStageView(type, source) {
+            if (type === 'background') {
+                if (source === 'default') {
+                    scene3D.background = new THREE.Color(0x0c0c0e);
+                } else {
+                    const loader = new THREE.TextureLoader();
+                    loader.load(source, (texture) => {
+                        scene3D.background = texture;
+                    });
+                }
+            }
+        }
+
+        // Custom Backdrop Paint trigger 
+        let paintingModeBackdrop = false;
+        function openPaintSubEditor(mode) {
+            paintingModeBackdrop = (mode === 'background');
+            clearActivePaintCanvasSurface();
+            switchWorkspaceTab('costumes');
+            showSystemDialog("🎨 Costume Canvas Ready", `Use the Paint panel on the right to design your custom ${mode}.`);
+        }
+
+        // Account Modification Routing Firewall Status
         function applyAccountModification() {
             if (!authenticatedUserMetadata.active) return;
-
-            let nameVal = document.getElementById("profileUserField").value;
-            let bioVal = document.getElementById("profileBioField").value;
             const ribbon = document.getElementById("serverTypeRibbon");
-            const profanityFilter = [/damn/gi, /hell/gi, /crap/gi, /ass/gi];
 
             if (authenticatedUserMetadata.routingChannel === "CENSORED_KIDS_SERVER") {
-                ribbon.className = "server-status-ribbon server-kids";
-                ribbon.innerText = "🔒 Kids Server Active";
-                document.getElementById("profileNetworkLabel").innerText = "Sandboxed Client-Side Segment";
-                
-                profanityFilter.forEach(regex => {
-                    nameVal = nameVal.replace(regex, "****");
-                    bioVal = bioVal.replace(regex, "****");
-                });
-                document.getElementById("profileUserField").value = nameVal;
-                document.getElementById("profileBioField").value = bioVal;
+                ribbon.className = "server-status-ribbon bg-yellow-500 border border-yellow-600 text-black";
+                ribbon.innerHTML = '<i class="ph ph-lock-key"></i> Kids 3D Sandbox Channel';
+                document.getElementById("profileNetworkLabel").innerText = "Sandboxed Client-Side Segment Channel Routing Mode.";
             } else {
-                ribbon.className = "server-status-ribbon server-adult";
-                ribbon.innerText = "🔓 Unrestricted Dev Server";
-                document.getElementById("profileNetworkLabel").innerText = "Total Access Cluster Loop Node";
+                ribbon.className = "server-status-ribbon bg-emerald-500 border border-emerald-600 text-black";
+                ribbon.innerHTML = '<i class="ph ph-globe"></i> Active Unrestricted Server Node';
+                document.getElementById("profileNetworkLabel").innerText = "Total Access 3D WebGL Cluster Loop Node Mode.";
             }
-            authenticatedUserMetadata.username = nameVal;
-            authenticatedUserMetadata.bio = bioVal;
         }
 
-        function toggleNetworkFollowGraph() {
-            const btn = document.getElementById("globalFollowBtn");
-            authenticatedUserMetadata.followingActive = !authenticatedUserMetadata.followingActive;
-            btn.innerText = authenticatedUserMetadata.followingActive ? "✨ Following Profile" : "Follow Account";
-            btn.style.borderColor = authenticatedUserMetadata.followingActive ? "var(--user-accent)" : "#222";
-        }
-
-        // Project Serialization Filesystem Methods
+        // Project File Serialization
         function saveActiveProjectData() {
             if(!primaryBlocklyWorkspace) return;
             const title = document.getElementById("projectTitleField").value;
             const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(primaryBlocklyWorkspace));
-            const payload = { title: title, xml: xml, author: authenticatedUserMetadata.username, channel: authenticatedUserMetadata.routingChannel };
+            const payload = { 
+                id: 'proj_' + Date.now(),
+                title: title, 
+                xml: xml, 
+                author: authenticatedUserMetadata.username, 
+                channel: authenticatedUserMetadata.routingChannel, 
+                sprites: sprites.map(s => ({ ...s, mesh: null, penLineMesh: null })),
+                loveCount: 1, favCount: 1, viewCount: 1,
+                comments: [], instructions: "Configure code in workspace canvas.",
+                remixOf: null
+            };
             
-            localStorage.setItem(`modstudio_saved_cache`, JSON.stringify(payload));
-            alert(`💾 Project asset matrix saved to local storage space.`);
+            localStorage.setItem(`modstudio3d_saved_cache`, JSON.stringify(payload));
+            showSystemDialog("💾 Project Saved", `Spatial layout "${title}" packed and recorded to active WebGL memory registers.`);
         }
 
         function shareProjectToCommunity() {
             saveActiveProjectData();
-            const raw = JSON.parse(localStorage.getItem(`modstudio_saved_cache`));
-            let db = JSON.parse(localStorage.getItem("modstudio_shared_db") || "[]");
+            const raw = JSON.parse(localStorage.getItem(`modstudio3d_saved_cache`));
+            
+            // Calculate a Simulated AI Curator Rating based on Blockly code block size & complexity!
+            let blockCount = primaryBlocklyWorkspace ? primaryBlocklyWorkspace.getAllBlocks(false).length : 0;
+            raw.aiScore = Math.min(100, Math.max(50, 70 + (blockCount * 3)));
+            raw.aiCurated = raw.aiScore > 85;
+
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
             db.push(raw);
-            localStorage.setItem("modstudio_shared_db", JSON.stringify(db));
-            alert("🚀 System asset payload broadcasted into cloud network segments.");
+            localStorage.setItem("modstudio3d_shared_db", JSON.stringify(db));
+            showSystemDialog("🚀 Mod Published", "System 3D workspace binary shared out to global network feed nodes.");
+            renderExploreSuite();
         }
 
-        function renderSharedFeed() {
-            const container = document.getElementById("exploreGrid");
-            container.innerHTML = "";
-            let db = JSON.parse(localStorage.getItem("modstudio_shared_db") || "[]");
-            let filtered = db.filter(p => p.channel === authenticatedUserMetadata.routingChannel);
+        // Social Feed and Social Follow Engine
+        function toggleFollowUser(username) {
+            let index = followingList.indexOf(username);
+            if (index > -1) {
+                followingList.splice(index, 1);
+                addFollowerActivity(username, "unfollowed you or stopped publishing network feeds.");
+            } else {
+                followingList.push(username);
+                addFollowerActivity(username, "is now sharing assets on your profile stream.");
+            }
+            renderExploreSuite();
+            renderProfileSuite();
+        }
 
-            if(filtered.length === 0) {
-                container.innerHTML = `<p style='color:var(--text-muted); font-style:italic;'>No custom items found on this platform segment loop layer.</p>`;
+        function addFollowerActivity(username, text) {
+            let log = document.getElementById("followerActivityLog");
+            let div = document.createElement("div");
+            div.className = "text-xs text-zinc-300 border-b border-zinc-850 pb-1 flex justify-between";
+            div.innerHTML = `<span><strong>@${username}</strong> ${text}</span> <span class="text-zinc-500">Just now</span>`;
+            log.insertBefore(div, log.firstChild);
+        }
+
+        // Dynamic explore and curated loaders
+        function renderExploreSuite() {
+            renderFeaturedProjects();
+            renderCommunitySharedFeed();
+            renderStudiosExploreGrid();
+        }
+
+        // AI Recommendations & Curations Engine
+        function renderFeaturedProjects() {
+            const container = document.getElementById("featuredProjectsGrid");
+            container.innerHTML = "";
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+
+            // Filter for projects marked as AI curated, sorted by the AI algorithmic score
+            let featured = db.filter(p => p.aiCurated).sort((a,b) => b.aiScore - a.aiScore);
+
+            if(featured.length === 0) {
+                container.innerHTML = `<p class='col-span-3 text-zinc-500 italic text-center py-4'>AI engine scanning shared logic codes. Publish deeper Blockly structures to unlock curation.</p>`;
                 return;
             }
 
-            filtered.forEach(project => {
-                const card = document.createElement('div');
-                card.className = "community-card";
+            featured.slice(0, 3).forEach(proj => {
+                const card = document.createElement("div");
+                card.className = "bg-gradient-to-br from-[#121214] to-zinc-950 border border-[#ffab19]/40 p-4 rounded-xl relative shadow-lg flex flex-col justify-between h-[150px]";
                 card.innerHTML = `
-                    <div class="card-title">${project.title}</div>
-                    <div class="card-author">Developer Hash: ${project.author}</div>
-                    <button class="btn-action" style="margin-top:0.5rem;" onclick="loadSharedProject('${escape(project.xml)}')">Inject Source Tree</button>
+                    <div class="absolute -top-2.5 -right-2 bg-gradient-to-r from-[#ffab19] to-amber-500 text-black text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow">
+                        <i class="ph ph-sparkle"></i> Gemini AI Choice (${proj.aiScore}%)
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold text-white leading-tight truncate">${proj.title}</h4>
+                        <p class="text-[11px] text-zinc-500 mt-0.5">by @${proj.author}</p>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-[10px] bg-zinc-900 px-2 py-1 rounded text-zinc-400">WebGL Model Ready</span>
+                        <button class="bg-[#ffab19] hover:bg-[#ffbf43] text-black font-bold text-xs px-3 py-1.5 rounded-lg transition-all" onclick="openProjectModal('${proj.id}')">
+                            Open Details
+                        </button>
+                    </div>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function loadSharedProject(xmlStr) {
-            primaryBlocklyWorkspace.clear();
-            Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(unescape(xmlStr)), primaryBlocklyWorkspace);
-            switchPanel('editor');
+        function renderCommunitySharedFeed() {
+            const container = document.getElementById("exploreGrid");
+            container.innerHTML = "";
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let search = document.getElementById("exploreSearch").value.toLowerCase();
+
+            let filtered = db.filter(p => p.title.toLowerCase().includes(search) || p.author.toLowerCase().includes(search));
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<p class='col-span-3 text-zinc-500 italic text-center py-6'>No shared assets found matching terms.</p>`;
+                return;
+            }
+
+            filtered.forEach(project => {
+                const isFollowing = followingList.includes(project.author);
+                const followBtn = project.author !== authenticatedUserMetadata.username ? 
+                    `<button class="text-[10px] px-2 py-0.5 rounded ${isFollowing ? 'bg-zinc-800 text-zinc-400' : 'bg-[#855cd6] text-black font-semibold'}" onclick="event.stopPropagation(); toggleFollowUser('${project.author}')">
+                        ${isFollowing ? 'Following' : 'Follow'}
+                    </button>` : '';
+
+                const card = document.createElement('div');
+                card.className = "bg-[#121214] border border-zinc-800 p-4 rounded-xl flex flex-col justify-between h-[160px] cursor-pointer hover:border-[#855cd6] transition-all";
+                card.onclick = () => openProjectModal(project.id);
+                card.innerHTML = `
+                    <div class="flex flex-col gap-1">
+                        <div class="flex justify-between items-start">
+                            <span class="text-white font-bold text-xs truncate max-w-[70%]">📐 ${project.title}</span>
+                            ${followBtn}
+                        </div>
+                        <div class="text-[10px] text-zinc-500">Node Operator: @${project.author}</div>
+                        ${project.remixOf ? `<div class="text-[9px] text-[#ffab19]"><i class="ph ph-git-fork"></i> Remix of @${project.remixAuthor}</div>` : ''}
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-zinc-400 pt-2 border-t border-zinc-850 mt-4">
+                        <div class="flex gap-2">
+                            <span><i class="ph ph-heart"></i> ${project.loveCount || 0}</span>
+                            <span><i class="ph ph-star"></i> ${project.favCount || 0}</span>
+                        </div>
+                        <button class="bg-[#855cd6]/20 text-[#a78bfa] border border-[#855cd6]/30 px-2 py-1 rounded text-[10px]">Open Code</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        // Segregated Comment Pipeline Management Logic
+        function renderStudiosExploreGrid() {
+            const container = document.getElementById("studiosExploreGrid");
+            container.innerHTML = "";
+            let db = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+
+            db.forEach(studio => {
+                const card = document.createElement("div");
+                card.className = "bg-[#1a1a1e] border border-zinc-800 rounded-xl p-4 flex flex-col justify-between h-[140px] cursor-pointer hover:border-[#ff4c4c] transition-all";
+                card.onclick = () => openStudioModal(studio.id);
+                card.innerHTML = `
+                    <div>
+                        <h4 class="text-sm font-bold text-white truncate"><i class="ph ph-folder text-[#ff4c4c] mr-1"></i> ${studio.title}</h4>
+                        <p class="text-xs text-zinc-500 mt-1 line-clamp-2">${studio.description}</p>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-zinc-400 pt-2 border-t border-zinc-850">
+                        <span>Curators: ${studio.members.length}</span>
+                        <span class="bg-zinc-900 px-2 py-0.5 rounded text-[#ff4c4c]">View Studio</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function triggerCreateStudioFlow() {
+            const title = prompt("Enter Studio Name:");
+            if (!title) return;
+            const desc = prompt("Enter Studio Description:");
+            
+            let db = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let newStudio = {
+                id: "studio_" + Date.now(),
+                title: title,
+                description: desc || "Curation node in Mod Studio 3D.",
+                members: [authenticatedUserMetadata.username],
+                projects: [],
+                comments: []
+            };
+            db.push(newStudio);
+            localStorage.setItem("modstudio3d_studios_db", JSON.stringify(db));
+            showSystemDialog("📁 Studio Created", `Your new curation studio "${title}" is ready and connected.`);
+            renderStudiosExploreGrid();
+        }
+
+        // Shared details modals
+        function openProjectModal(projectId) {
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === projectId);
+            if (!project) return;
+
+            currentModalProject = project;
+
+            document.getElementById("modalProjTitle").innerText = project.title;
+            document.getElementById("modalProjAuthor").innerText = "by @" + project.author;
+            document.getElementById("modalProjInstructions").innerText = project.instructions || "Configure code in workspace canvas.";
+            document.getElementById("modalLoveCount").innerText = project.loveCount || 0;
+            document.getElementById("modalFavCount").innerText = project.favCount || 0;
+            document.getElementById("modalViewCount").innerText = (project.viewCount || 0) + 1;
+
+            // Increment view counts
+            project.viewCount = (project.viewCount || 0) + 1;
+            localStorage.setItem("modstudio3d_shared_db", JSON.stringify(db));
+
+            // Remix link origins rendering
+            const originBox = document.getElementById("modalRemixOriginText");
+            if (project.remixOf) {
+                originBox.innerHTML = `<span class="text-[#ffab19]">Remix Tree Root:</span> Parent project ID original by @${project.remixAuthor || 'Unknown Operator'}`;
+            } else {
+                originBox.innerHTML = `Original Workspace Master Class (Root Project Model)`;
+            }
+
+            // Assign remix trigger
+            document.getElementById("modalRemixBtn").onclick = () => triggerRemixProject(project.id);
+
+            renderProjectCommentsUI();
+            document.getElementById("projectDetailsModal").classList.remove("hidden");
+        }
+
+        function closeProjectDetailsModal() {
+            document.getElementById("projectDetailsModal").classList.add("hidden");
+            currentModalProject = null;
+        }
+
+        // Love and Favorites counters togglers
+        function toggleLoveActiveProject() {
+            if (!currentModalProject) return;
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === currentModalProject.id);
+            if (project) {
+                project.loveCount = (project.loveCount || 0) + 1;
+                document.getElementById("modalLoveCount").innerText = project.loveCount;
+                localStorage.setItem("modstudio3d_shared_db", JSON.stringify(db));
+                triggerSynthesizerBeep(600, "sine", 0.1);
+            }
+        }
+
+        function toggleFavActiveProject() {
+            if (!currentModalProject) return;
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === currentModalProject.id);
+            if (project) {
+                project.favCount = (project.favCount || 0) + 1;
+                document.getElementById("modalFavCount").innerText = project.favCount;
+                localStorage.setItem("modstudio3d_shared_db", JSON.stringify(db));
+                triggerSynthesizerBeep(700, "sine", 0.1);
+            }
+        }
+
+        function postProjectComment() {
+            const val = document.getElementById("projectCommentInput").value;
+            if (!val || !currentModalProject) return;
+
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === currentModalProject.id);
+            if (project) {
+                project.comments = project.comments || [];
+                project.comments.push({ user: authenticatedUserMetadata.username, text: val });
+                localStorage.setItem("modstudio3d_shared_db", JSON.stringify(db));
+                document.getElementById("projectCommentInput").value = "";
+                renderProjectCommentsUI();
+            }
+        }
+
+        function renderProjectCommentsUI() {
+            const list = document.getElementById("projectCommentsList");
+            list.innerHTML = "";
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === currentModalProject.id);
+            if (!project) return;
+
+            const comments = project.comments || [];
+            document.getElementById("modalCommentsNum").innerText = comments.length;
+
+            comments.forEach(c => {
+                let div = document.createElement("div");
+                div.className = "bg-zinc-900 border border-zinc-850 p-2 rounded text-[11px] text-zinc-300 flex justify-between";
+                div.innerHTML = `<span><strong>@${c.user}:</strong> ${c.text}</span>`;
+                list.appendChild(div);
+            });
+        }
+
+        // Remixed asset branching trigger
+        function triggerRemixProject(projectId) {
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.id === projectId);
+            if (!project) return;
+
+            // Load into current workspace
+            if (project.xml && primaryBlocklyWorkspace) {
+                primaryBlocklyWorkspace.clear();
+                Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(project.xml), primaryBlocklyWorkspace);
+            }
+
+            // Copy sprites array
+            if (project.sprites) {
+                sprites.forEach(s => { if (s.mesh) scene3D.remove(s.mesh); });
+                sprites = JSON.parse(JSON.stringify(project.sprites));
+                sprites.forEach(s => renderSpriteInScene(s));
+            }
+
+            // Create Remix child references
+            document.getElementById("projectTitleField").value = `Remix of ${project.title}`;
+            saveActiveProjectData();
+
+            let remixCache = JSON.parse(localStorage.getItem(`modstudio3d_saved_cache`));
+            remixCache.remixOf = project.id;
+            remixCache.remixAuthor = project.author;
+            localStorage.setItem(`modstudio3d_saved_cache`, JSON.stringify(remixCache));
+
+            closeProjectDetailsModal();
+            switchPanel('editor');
+            showSystemDialog("🌿 Project Remixed", `Copied assets from @${project.author}. Project remix origin branched.`);
+        }
+
+        // Studio Details Handlers
+        function openStudioModal(studioId) {
+            let db = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let studio = db.find(s => s.id === studioId);
+            if (!studio) return;
+
+            currentActiveStudio = studio;
+
+            document.getElementById("studioModalTitle").innerText = studio.title;
+            document.getElementById("studioModalDesc").innerText = studio.description;
+
+            renderStudioMembersAndProjects();
+            document.getElementById("studioModal").classList.remove("hidden");
+        }
+
+        function closeStudioModal() {
+            document.getElementById("studioModal").classList.add("hidden");
+            currentActiveStudio = null;
+        }
+
+        function joinStudioAsCurator() {
+            if (!currentActiveStudio) return;
+            let db = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let studio = db.find(s => s.id === currentActiveStudio.id);
+            if (studio) {
+                if (studio.members.includes(authenticatedUserMetadata.username)) {
+                    showSystemDialog("Curator Node", "You are already a curator member of this studio stack.");
+                    return;
+                }
+                studio.members.push(authenticatedUserMetadata.username);
+                localStorage.setItem("modstudio3d_studios_db", JSON.stringify(db));
+                renderStudioMembersAndProjects();
+                triggerSynthesizerBeep(800, "sine", 0.1);
+            }
+        }
+
+        function addProjectToStudioStack() {
+            if (!currentActiveStudio) return;
+            let pTitle = prompt("Add Curated Project Title or ID:");
+            if (!pTitle) return;
+
+            let db = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+            let project = db.find(p => p.title.toLowerCase().includes(pTitle.toLowerCase()));
+
+            if (!project) {
+                showSystemDialog("Curation Error", "No shared project matching title found inside network feed.");
+                return;
+            }
+
+            let sDb = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let studio = sDb.find(s => s.id === currentActiveStudio.id);
+            if (studio) {
+                studio.projects = studio.projects || [];
+                if (studio.projects.includes(project.id)) {
+                    showSystemDialog("Conflict Exception", "This asset is already curated inside the studio grid.");
+                    return;
+                }
+                studio.projects.push(project.id);
+                localStorage.setItem("modstudio3d_studios_db", JSON.stringify(sDb));
+                renderStudioMembersAndProjects();
+            }
+        }
+
+        function renderStudioMembersAndProjects() {
+            if (!currentActiveStudio) return;
+            let sDb = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let studio = sDb.find(s => s.id === currentActiveStudio.id);
+
+            // Curator avatars
+            const memberContainer = document.getElementById("studioCuratorList");
+            memberContainer.innerHTML = "";
+            studio.members.forEach(m => {
+                let div = document.createElement("div");
+                div.className = "bg-zinc-950 p-1.5 rounded flex items-center justify-between";
+                div.innerHTML = `<span>👤 @${m}</span> <span class="text-[9px] uppercase font-bold text-emerald-500">Curator</span>`;
+                memberContainer.appendChild(div);
+            });
+
+            // Curator projects list
+            const projectContainer = document.getElementById("studioProjectGrid");
+            projectContainer.innerHTML = "";
+            let pDb = JSON.parse(localStorage.getItem("modstudio3d_shared_db") || "[]");
+
+            if (!studio.projects || studio.projects.length === 0) {
+                projectContainer.innerHTML = `<p class="col-span-2 text-zinc-500 italic text-[11px] text-center">No projects curated inside this studio directory.</p>`;
+            } else {
+                studio.projects.forEach(pId => {
+                    let project = pDb.find(p => p.id === pId);
+                    if (project) {
+                        let div = document.createElement("div");
+                        div.className = "bg-zinc-950 border border-zinc-850 p-2 rounded text-[11px] text-white flex justify-between items-center";
+                        div.innerHTML = `
+                            <span>📐 ${project.title} (@${project.author})</span>
+                            <button class="bg-[#855cd6]/30 text-[#a78bfa] text-[9px] px-1.5 py-0.5 rounded" onclick="closeStudioModal(); openProjectModal('${project.id}')">View</button>
+                        `;
+                        projectContainer.appendChild(div);
+                    }
+                });
+            }
+
+            // Wall comments board
+            const wall = document.getElementById("studioCommentsWall");
+            wall.innerHTML = "";
+            let comments = studio.comments || [];
+            comments.forEach(c => {
+                let div = document.createElement("div");
+                div.className = "bg-zinc-950 p-1.5 rounded text-[11px] text-zinc-400";
+                div.innerHTML = `<strong>@${c.user}:</strong> ${c.text}`;
+                wall.appendChild(div);
+            });
+        }
+
+        function postStudioComment() {
+            const val = document.getElementById("studioCommentInput").value;
+            if (!val || !currentActiveStudio) return;
+
+            let sDb = JSON.parse(localStorage.getItem("modstudio3d_studios_db") || "[]");
+            let studio = sDb.find(s => s.id === currentActiveStudio.id);
+            if (studio) {
+                studio.comments = studio.comments || [];
+                studio.comments.push({ user: authenticatedUserMetadata.username, text: val });
+                localStorage.setItem("modstudio3d_studios_db", JSON.stringify(sDb));
+                document.getElementById("studioCommentInput").value = "";
+                renderStudioMembersAndProjects();
+            }
+        }
+
+        // Profile Social suite
+        function renderProfileSuite() {
+            document.getElementById("profileNameHeader").innerText = authenticatedUserMetadata.username;
+            document.getElementById("followersCountText").innerText = followersList.length;
+            document.getElementById("followingCountText").innerText = followingList.length;
+
+            // Followings
+            const followingCont = document.getElementById("profileFollowingList");
+            followingCont.innerHTML = "";
+            followingList.forEach(f => {
+                let div = document.createElement("div");
+                div.className = "bg-black/60 p-2 rounded border border-zinc-850 flex justify-between items-center";
+                div.innerHTML = `<span>👤 @${f}</span> <button class="text-[9px] text-red-400 font-semibold uppercase hover:underline" onclick="toggleFollowUser('${f}')">Unfollow</button>`;
+                followingCont.appendChild(div);
+            });
+
+            // Profile Wall
+            renderProfileCommentsUI();
+        }
+
+        function updateProfileAvatar() {
+            const av = document.getElementById("avatarSelector").value;
+            authenticatedUserMetadata.avatar = av;
+            document.getElementById("profileAvatarDisplay").innerText = av;
+            triggerSynthesizerBeep(700, "sawtooth", 0.1);
+        }
+
+        function postProfileComment() {
+            const val = document.getElementById("profileCommentInput").value;
+            if (!val) return;
+
+            mockProfileComments.push({ user: authenticatedUserMetadata.username, text: val });
+            document.getElementById("profileCommentInput").value = "";
+            renderProfileCommentsUI();
+        }
+
+        function renderProfileCommentsUI() {
+            const container = document.getElementById("profileCommentsStack");
+            container.innerHTML = "";
+            mockProfileComments.forEach(c => {
+                let div = document.createElement("div");
+                div.className = "bg-zinc-900 border border-zinc-850 p-2 rounded text-zinc-300";
+                div.innerHTML = `<strong>@${c.user}:</strong> ${c.text}`;
+                container.appendChild(div);
+            });
+        }
+
+        // Active workspace backpack system (Fully Functional Scratch Features)
+        function addCurrentWorkspaceToBackpack(event) {
+            if (event) event.stopPropagation();
+            if (!primaryBlocklyWorkspace) return;
+
+            let blocks = primaryBlocklyWorkspace.getAllBlocks(false);
+            if (blocks.length === 0) {
+                showSystemDialog("Backpack Caching", "No workspace block structures found on the visual logic stage.");
+                return;
+            }
+
+            const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(primaryBlocklyWorkspace));
+            const backpackId = 'bp_' + Date.now();
+            
+            backpack.push({
+                id: backpackId,
+                title: `Workspace Logic Cache (${blocks.length} blocks)`,
+                xml: xml
+            });
+
+            triggerSynthesizerBeep(880, "sine", 0.1);
+            renderBackpackUI();
+            
+            // Auto open drawer
+            const backpackCont = document.getElementById("backpackContainer");
+            if (backpackCont.classList.contains("h-0")) {
+                toggleBackpack();
+            }
+        }
+
+        function renderBackpackUI() {
+            const container = document.getElementById("backpackContentList");
+            container.innerHTML = "";
+
+            if (backpack.length === 0) {
+                container.innerHTML = `<p class="text-zinc-500 italic text-[11px] mt-1">No saved code blocks in backpack. Click "Add Current Code" to cache.</p>`;
+                return;
+            }
+
+            backpack.forEach(item => {
+                let card = document.createElement("div");
+                card.className = "bg-zinc-900 hover:border-[#855cd6] border border-zinc-800 p-2 rounded flex flex-col gap-1 w-[180px] text-[10px] shrink-0 justify-between cursor-pointer";
+                card.onclick = () => loadBackpackItemToWorkspace(item.id);
+                card.innerHTML = `
+                    <span class="text-white font-semibold truncate"><i class="ph ph-briefcase"></i> ${item.title}</span>
+                    <div class="flex justify-between items-center mt-2">
+                        <span class="text-[9px] text-[#ffab19]">Click to Inject</span>
+                        <button class="text-red-400 hover:text-red-500" onclick="event.stopPropagation(); removeBackpackItem('${item.id}')"><i class="ph ph-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function loadBackpackItemToWorkspace(itemId) {
+            let item = backpack.find(i => i.id === itemId);
+            if (item && primaryBlocklyWorkspace) {
+                const dom = Blockly.utils.xml.textToDom(item.xml);
+                Blockly.Xml.domToWorkspace(dom, primaryBlocklyWorkspace);
+                showSystemDialog("🎒 Code Injected", "Cached backpack blocks have been injected into your current Blockly workspace.");
+                triggerSynthesizerBeep(600, "sine", 0.1);
+            }
+        }
+
+        function removeBackpackItem(itemId) {
+            let index = backpack.findIndex(i => i.id === itemId);
+            if (index > -1) {
+                backpack.splice(index, 1);
+                renderBackpackUI();
+            }
+        }
+
         function postGlobalNetworkComment() {
             let inputMsg = document.getElementById("commentInputField").value;
             if(!inputMsg) return;
 
-            if(authenticatedUserMetadata.routingChannel === "CENSORED_KIDS_SERVER") {
-                [/damn/gi, /hell/gi, /crap/gi, /ass/gi].forEach(r => inputMsg = inputMsg.replace(r, "****"));
-            }
-
-            let thread = JSON.parse(localStorage.getItem(`comments_${authenticatedUserMetadata.routingChannel}`) || "[]");
+            let thread = JSON.parse(localStorage.getItem(`comments_3d_${authenticatedUserMetadata.routingChannel}`) || "[]");
             thread.push({ user: authenticatedUserMetadata.username, message: inputMsg });
-            localStorage.setItem(`comments_${authenticatedUserMetadata.routingChannel}`, JSON.stringify(thread));
+            localStorage.setItem(`comments_3d_${authenticatedUserMetadata.routingChannel}`, JSON.stringify(thread));
             
             document.getElementById("commentInputField").value = "";
             loadCachedCommentsStream();
@@ -461,20 +1966,351 @@
 
         function loadCachedCommentsStream() {
             const container = document.getElementById("commentsHistoryStack");
+            if (!container) return;
             container.innerHTML = "";
-            let thread = JSON.parse(localStorage.getItem(`comments_${authenticatedUserMetadata.routingChannel}`) || "[]");
+            let thread = JSON.parse(localStorage.getItem(`comments_3d_${authenticatedUserMetadata.routingChannel}`) || "[]");
 
             if(thread.length === 0) {
-                container.innerHTML = `<div class='comment-node' style='color:var(--text-muted); border:none;'>No transaction logs written to this segment's comment logs yet.</div>`;
+                container.innerHTML = `<div class='text-zinc-500 italic text-xs'>No entries found.</div>`;
                 return;
             }
 
             thread.forEach(c => {
                 const item = document.createElement('div');
-                item.className = "comment-node";
-                item.innerHTML = `<strong style="color:var(--user-accent);">${c.user}:</strong> <span>${c.message}</span>`;
+                item.className = "text-xs border-b border-zinc-850 pb-2 flex flex-col gap-1";
+                item.innerHTML = `<div class="flex items-center gap-1.5"><strong style="color:var(--user-accent);">${c.user}:</strong></div> <span class="text-zinc-300">${c.message}</span>`;
                 container.appendChild(item);
             });
+        }
+
+        // CLASSIC SCRATCH RUNTIME BLOCKS INTERPRETER 
+        // Loops over Blockly variables to animate 3D Meshes in real-time
+        let activeCoroutines = [];
+
+        function parseAndRunBlocks() {
+            // Find when green flag clicked blocks
+            const blocks = primaryBlocklyWorkspace.getTopBlocks(true);
+            blocks.forEach(block => {
+                if (block.type === 'event_whenflagclicked') {
+                    // Create thread coroutine execution stack
+                    const coroutine = {
+                        activeBlock: block.getNextBlock(),
+                        vars: {},
+                        delayTimer: 0,
+                        repeatCounter: null,
+                        foreverLoop: false
+                    };
+                    activeCoroutines.push(coroutine);
+                }
+            });
+        }
+
+        function executeActiveCoroutines(dt) {
+            const activeSprite = sprites.find(s => s.id === activeSpriteId);
+            if (!activeSprite) return;
+
+            for (let i = activeCoroutines.length - 1; i >= 0; i--) {
+                const thread = activeCoroutines[i];
+                
+                if (thread.delayTimer > 0) {
+                    thread.delayTimer -= dt;
+                    continue;
+                }
+
+                if (!thread.activeBlock) {
+                    // Thread terminates
+                    activeCoroutines.splice(i, 1);
+                    continue;
+                }
+
+                const block = thread.activeBlock;
+
+                // MOTION EXECUTORS
+                if (block.type === 'motion_movesteps') {
+                    const val = parseFloat(Blockly.JavaScript?.valueToCode?.(block, 'STEPS', 10) || block.getFieldValue('NUM') || 10);
+                    const headingRad = THREE.MathUtils.degToRad(activeSprite.direction);
+                    activeSprite.x += Math.sin(headingRad) * val * 0.1;
+                    activeSprite.z += Math.cos(headingRad) * val * 0.1;
+                }
+                else if (block.type === 'motion_changezby') {
+                    const val = parseFloat(block.getFieldValue('NUM') || 5);
+                    activeSprite.y += val * 0.1;
+                }
+                else if (block.type === 'motion_setzto') {
+                    const val = parseFloat(block.getFieldValue('NUM') || 0);
+                    activeSprite.y = val;
+                }
+                else if (block.type === 'motion_goto3d') {
+                    const x = parseFloat(block.getFieldValue('X') || 0);
+                    const y = parseFloat(block.getFieldValue('Y') || 0);
+                    const z = parseFloat(block.getFieldValue('Z') || 0);
+                    activeSprite.x = x;
+                    activeSprite.y = y;
+                    activeSprite.z = z;
+                }
+                else if (block.type === 'motion_turn3d') {
+                    const deg = parseFloat(block.getFieldValue('NUM') || 15);
+                    activeSprite.direction = (activeSprite.direction + deg) % 360;
+                }
+
+                // LOOKS EXECUTORS
+                else if (block.type === 'looks_setzscale') {
+                    const scale = parseFloat(block.getFieldValue('ZSCALE') || 100);
+                    activeSprite.scale = scale;
+                }
+                else if (block.type === 'looks_changeeffectby') {
+                    const change = parseFloat(block.getFieldValue('CHANGE') || 25);
+                    activeSprite.colorEffect = (activeSprite.colorEffect + change) % 360;
+                    renderSpriteInScene(activeSprite); // Rebuild mesh for HSL shift
+                }
+                else if (block.type === 'looks_show') {
+                    activeSprite.visible = true;
+                    if (activeSprite.mesh) activeSprite.mesh.visible = true;
+                }
+                else if (block.type === 'looks_hide') {
+                    activeSprite.visible = false;
+                    if (activeSprite.mesh) activeSprite.mesh.visible = false;
+                }
+
+                // PEN EXECUTORS
+                else if (block.type === 'pen_down') {
+                    activeSprite.penDown = true;
+                }
+                else if (block.type === 'pen_up') {
+                    activeSprite.penDown = false;
+                }
+                else if (block.type === 'pen_clear') {
+                    sprites.forEach(s => {
+                        s.penPoints = [];
+                        if (s.penLineMesh) {
+                            scene3D.remove(s.penLineMesh);
+                            s.penLineMesh = null;
+                        }
+                    });
+                }
+                else if (block.type === 'pen_setcolor') {
+                    const col = block.getFieldValue('COLOUR') || '#2cf27b';
+                    activeSprite.penColor = col;
+                }
+
+                // Step to next instruction
+                thread.activeBlock = block.getNextBlock();
+            }
+
+            updateActiveSpriteProperties();
+        }
+
+        function rebuildPenLineMesh(sprite) {
+            if (sprite.penPoints.length < 2) return;
+
+            if (sprite.penLineMesh) {
+                scene3D.remove(sprite.penLineMesh);
+            }
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(sprite.penPoints);
+            const material = new THREE.LineBasicMaterial({
+                color: new THREE.Color(sprite.penColor),
+                linewidth: sprite.penSize
+            });
+
+            const line = new THREE.Line(geometry, material);
+            scene3D.add(line);
+            sprite.penLineMesh = line;
+        }
+
+        function triggerStagePlayback(state) {
+            if (state === 'play') {
+                isStageRunning = true;
+                triggerSynthesizerBeep(520, 'sine', 0.15, false, false);
+                parseAndRunBlocks();
+            } else if (state === 'stop') {
+                isStageRunning = false;
+                activeCoroutines = [];
+                sprites.forEach(sprite => {
+                    sprite.penPoints = [];
+                    if (sprite.penLineMesh) {
+                        scene3D.remove(sprite.penLineMesh);
+                        sprite.penLineMesh = null;
+                    }
+                    sprite.x = 0;
+                    sprite.y = 10;
+                    sprite.z = 0;
+                    sprite.direction = 90;
+                    if (sprite.mesh) {
+                        sprite.mesh.position.set(sprite.x, sprite.y, sprite.z);
+                        sprite.mesh.rotation.y = THREE.MathUtils.degToRad(sprite.direction);
+                    }
+                });
+                triggerSynthesizerBeep(260, 'sawtooth', 0.2, true, false);
+                selectActiveSprite(activeSpriteId);
+            }
+        }
+
+        let lastTime = 0;
+        function animateLoop(now = 0) {
+            animationFrameId = requestAnimationFrame(animateLoop);
+            
+            const dt = (now - lastTime) / 1000;
+            lastTime = now;
+
+            if (isStageRunning) {
+                executeActiveCoroutines(dt);
+            }
+
+            if (renderer3D && scene3D && camera3D) {
+                renderer3D.render(scene3D, camera3D);
+            }
+        }
+
+        // ==========================================
+        //         GEMINI API INTEGRATIONS
+        // ==========================================
+
+        async function fetchWithExponentialBackoff(url, options) {
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                } catch (error) { }
+                if (i < 4) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+            throw new Error("Unable to establish connection to the Gemini engine cluster. Please try again later.");
+        }
+
+        async function generateBlocksWithGemini() {
+            const promptInput = document.getElementById("aiPromptBlocks").value;
+            const btn = document.getElementById("aiBtnBlocks");
+            if (!promptInput.trim()) {
+                showSystemDialog("Prompt Required", "Please describe the blocks you wish to create.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Compiling...`;
+
+            const systemPrompt = `You are a specialized Blockly XML compiler helper for the custom Studio Mod 3D Scratch system.
+            Generate ONLY a valid Blockly XML structure representing the user's natural language request.
+            Do NOT enclose your answer in markdown code backticks, markdown boxes, or any formatting. Return ONLY the raw XML string starting with <xml> and ending with </xml>.
+
+            The block library definitions are:
+            1) motion_movesteps:
+               <block type="motion_movesteps"><value name="STEPS"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+            2) motion_changezby:
+               <block type="motion_changezby"><value name="ZVAL"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+            3) motion_setzto:
+               <block type="motion_setzto"><value name="ZVAL"><shadow type="math_number"><field name="NUM">0</field></shadow></value></block>
+            4) motion_turn3d:
+               <block type="motion_turn3d"><field name="AXIS">Y</field><value name="DEGREES"><shadow type="math_number"><field name="NUM">15</field></shadow></value></block>
+            5) looks_say:
+               <block type="looks_say"><value name="MESSAGE"><shadow type="text"><field name="TEXT">Hello!</field></shadow></value></block>
+            6) looks_setzscale:
+               <block type="looks_setzscale"><value name="ZSCALE"><shadow type="math_number"><field name="NUM">100</field></shadow></value></block>
+            7) event_whenflagclicked:
+               <block type="event_whenflagclicked"></block>
+
+            Arrange the blocks correctly nested inside <next> tags so they run sequentially. Make sure you wrap the final result in:
+            <xml xmlns="https://developers.google.com/blockly/xml">...your blocks...</xml>`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: promptInput }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                const data = await fetchWithExponentialBackoff(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const rawXmlText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (rawXmlText) {
+                    loadGeneratedBlocks(rawXmlText);
+                } else {
+                    throw new Error("No payload found inside the AI compiler response.");
+                }
+            } catch (err) {
+                showSystemDialog("AI Connection Exception", err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `Build Logic`;
+            }
+        }
+
+        function loadGeneratedBlocks(xmlText) {
+            try {
+                let cleanXml = xmlText.replace(/```xml/g, "").replace(/```/g, "").trim();
+                if (!cleanXml.startsWith('<xml')) {
+                    cleanXml = `<xml xmlns="https://developers.google.com/blockly/xml">${cleanXml}</xml>`;
+                }
+
+                primaryBlocklyWorkspace.clear();
+                const dom = Blockly.utils.xml.textToDom(cleanXml);
+                Blockly.Xml.domToWorkspace(dom, primaryBlocklyWorkspace);
+                showSystemDialog("✨ Workspace Restructured", "Gemini AI has successfully injected the custom 3D logic blocks sequence!");
+            } catch (err) {
+                showSystemDialog("Block Parser Exception", "The AI generated blocks, but there was an error importing them into Blockly.");
+            }
+        }
+
+        // ✨ AI Texture Painter: Generates textures via Imagen
+        async function generateTextureWithImagen() {
+            const promptInput = document.getElementById("aiPromptTexture").value;
+            const btn = document.getElementById("aiBtnTexture");
+
+            if (!promptInput.trim()) {
+                showSystemDialog("Prompt Required", "Please describe the texture you wish to paint with AI.");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Creating...`;
+
+            const structuralPrompt = `${promptInput}, seamless texture, digital art style, high quality 3D asset`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const payload = {
+                instances: { prompt: structuralPrompt },
+                parameters: { sampleCount: 1 }
+            };
+
+            try {
+                const data = await fetchWithExponentialBackoff(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const base64EncodedData = data.predictions?.[0]?.bytesBase64Encoded;
+                if (base64EncodedData) {
+                    const generatedImageUrl = `data:image/png;base64,${base64EncodedData}`;
+                    
+                    // Render image to paint canvas
+                    const canvas = document.getElementById("paintTargetCanvas");
+                    const ctx = canvas.getContext("2d");
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = generatedImageUrl;
+
+                    showSystemDialog("✨ Texture Generated", "Your AI texture has been generated and painted onto the vector canvas. Click 'Apply Texture' below to project it onto the active 3D model.");
+                } else {
+                    throw new Error("No image predicted by the generation node.");
+                }
+            } catch (err) {
+                showSystemDialog("AI Generation Exception", err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="ph ph-sparkle"></i> Create 3D Texture with AI`;
+            }
         }
     </script>
 </body>
