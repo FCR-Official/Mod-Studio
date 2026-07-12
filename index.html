@@ -3,359 +3,478 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mod Studio Ecosystem</title>
+    <title>Studio Mod - Fully Loaded Scratch Fork</title>
     <link rel="icon" type="image/png" href="costume1 (24).png">
+    
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap">
+
     <style>
         :root {
             --bg-black: #000000;
-            --panel-dark: #09090b;
-            --panel-card: #18181b;
+            --panel-dark: #050505;
+            --panel-card: #0a0a0a;
             --text-main: #ffffff;
-            --text-muted: #a1a1aa;
-            /* Dynamic Accent Color selected by the user */
+            --text-muted: #8e8e8e;
             --user-accent: #10b981;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             background-color: var(--bg-black);
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             color: var(--text-main);
-            overflow-x: hidden;
+            overflow: hidden; height: 100vh;
         }
 
-        /* Ecosystem Mode Switcher Header */
-        .eco-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 2rem;
-            background-color: var(--panel-dark);
+        .workspace-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.75rem 1.5rem; background-color: var(--panel-dark);
             border-bottom: 2px solid var(--user-accent);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.8); z-index: 100; position: relative;
         }
 
-        .tabs-container {
-            display: flex;
-            gap: 1rem;
+        .header-brand { font-size: 1.35rem; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; }
+        .header-brand span { color: var(--user-accent); }
+
+        .customizer-bar {
+            display: flex; align-items: center; gap: 1rem;
+            background: rgba(255,255,255,0.02); padding: 0.4rem 1rem;
+            border-radius: 6px; border: 1px solid #1f1f1f;
         }
 
-        .tab-btn {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid #27272a;
-            padding: 0.6rem 1.2rem;
-            font-weight: 700;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        .control-unit { display: flex; align-items: center; gap: 0.5rem; }
+        .control-unit label { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        .text-input { background: #000; border: 1px solid #222; color: #fff; padding: 0.4rem; border-radius: 4px; font-size: 0.85rem; outline: none; }
+
+        .hub-tabs { display: flex; background: #050505; border-bottom: 1px solid #1f1f1f; padding: 0.25rem 1rem; gap: 0.5rem; }
+        .hub-tab-btn { background: transparent; color: var(--text-muted); border: none; padding: 0.6rem 1.2rem; font-weight: 600; cursor: pointer; border-radius: 4px; font-size: 0.9rem; }
+        .hub-tab-btn.active { background: rgba(255,255,255,0.05); color: var(--user-accent); }
+
+        .app-workspace { height: calc(100vh - 110px); position: relative; width: 100%; }
+        .panel-view { display: none; width: 100%; height: 100%; overflow: hidden; background: #000; }
+        .panel-view.active { display: block; }
+
+        /* Integrated Split Workspace Layout */
+        .editor-split-grid { display: grid; grid-template-columns: 1fr 340px; width: 100%; height: 100%; }
+        #blocklyCanvasContainer { width: 100%; height: 100%; background-color: #000; }
+        
+        .stage-and-assets-sidebar { 
+            background: var(--panel-dark); border-left: 1px solid #1f1f1f; 
+            display: flex; flex-direction: column; overflow-y: auto; height: 100%;
         }
 
-        .tab-btn.active {
-            background: var(--user-accent);
-            color: #000000;
-            border-color: var(--user-accent);
+        /* Runtime Stage Simulation Control Layer */
+        .simulation-stage-screen {
+            background: #111; width: 100%; height: 210px; position: relative;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+            border-bottom: 1px solid #1f1f1f;
         }
-
-        /* Main Dynamic Workspace containers */
-        .workspace-view {
-            display: none;
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1.5rem;
+        .simulated-actor {
+            width: 50px; height: 50px; background: var(--user-accent); 
+            border-radius: 8px; position: absolute; transition: transform 0.5s ease;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000;
         }
-
-        .workspace-view.active {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 2rem;
+        .stage-runtime-navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            background: #020202; padding: 0.5rem 1rem; border-bottom: 1px solid #1f1f1f;
         }
+        .playback-controls { display: flex; gap: 0.5rem; }
+        .control-glyph-btn { background: transparent; border: none; font-size: 1.1rem; cursor: pointer; color: #fff; }
 
-        /* Sidebar Panels */
-        .sidebar-panel {
-            background-color: var(--panel-dark);
-            border: 1px solid #27272a;
-            border-radius: 12px;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        /* Asset Panel Components */
+        .asset-management-suite { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; }
+        .asset-tray-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(75px, 1fr)); gap: 0.5rem; margin-top: 0.5rem; }
+        .asset-thumb-card {
+            background: var(--panel-card); border: 1px solid #222; border-radius: 6px;
+            padding: 0.5rem; text-align: center; cursor: pointer; font-size: 0.75rem;
         }
+        .asset-thumb-card.selected { border-color: var(--user-accent); background: rgba(255,255,255,0.02); }
 
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
+        /* Community Elements Layout */
+        .community-container { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem; display: flex; flex-direction: column; gap: 2rem; height: 90%; overflow-y: auto; }
+        .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.5rem; }
+        .community-card { background: var(--panel-card); border: 1px solid #1f1f1f; border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; position: relative; }
+        
+        .comment-thread-box { display: flex; flex-direction: column; gap: 0.75rem; background: #020202; border: 1px solid #1f1f1f; padding: 1rem; border-radius: 6px; }
+        .comment-node { font-size: 0.85rem; border-bottom: 1px solid #111; padding-bottom: 0.5rem; }
 
-        .control-group label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
+        .btn-action { background: var(--user-accent); color: #000; border: none; padding: 0.5rem 1rem; font-weight: 700; border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-align: center; }
+        .btn-action-outline { background: transparent; color: #fff; border: 1px solid #222; padding: 0.5rem 1rem; font-weight: 600; border-radius: 4px; cursor: pointer; font-size: 0.85rem; text-align: center; }
 
-        .color-picker-row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: #000;
-            padding: 0.5rem;
-            border-radius: 6px;
-            border: 1px solid #27272a;
-        }
+        .server-status-ribbon { position: absolute; bottom: 1rem; left: 1rem; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; z-index: 99; box-shadow: 0 4px 15px rgba(0,0,0,0.5); pointer-events: none; }
+        .server-kids { background-color: #eab308; color: #000; border: 1px solid #ca8a04; }
+        .server-adult { background-color: var(--user-accent); color: #000; border: 1px solid var(--user-accent); }
 
-        input[type="color"] {
-            border: none;
-            background: transparent;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-        }
+        .auth-blockade-curtain { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .auth-card { background: var(--panel-card); border: 1px solid #1f1f1f; border-radius: 12px; padding: 3rem; text-align: center; max-width: 450px; }
+        .google-login-btn { background: #ffffff; color: #000000; border: none; padding: 0.8rem 1.75rem; font-weight: 700; font-size: 0.95rem; border-radius: 6px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.75rem; margin-top: 1rem; }
 
-        .text-input {
-            background: #000;
-            border: 1px solid #27272a;
-            color: #fff;
-            padding: 0.6rem;
-            border-radius: 6px;
-            outline: none;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Grid Platform Matrix Buttons */
-        .platform-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-        }
-
-        .platform-btn {
-            background: var(--panel-card);
-            border: 1px solid #27272a;
-            color: #fff;
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .platform-btn:hover {
-            border-color: var(--user-accent);
-        }
-
-        /* Dynamic Preview Board */
-        .preview-board {
-            background-color: var(--panel-dark);
-            border: 1px solid #27272a;
-            border-radius: 12px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            position: relative;
-        }
-
-        /* Age Mode Banners */
-        .age-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 700;
-        }
-
-        .badge-kids { background-color: #eab308; color: #000; }
-        .badge-adult { background-color: var(--user-accent); color: #000; }
-
-        /* Mock PenguinMod Blocks Wrapper */
-        .mock-blockly-canvas {
-            background: #000;
-            border: 2px dashed #27272a;
-            border-radius: 8px;
-            padding: 2rem;
-            min-height: 250px;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .mock-block {
-            background: #000000;
-            border: 2px solid var(--user-accent);
-            padding: 0.75rem 1.2rem;
-            border-radius: 4px;
-            font-family: monospace;
-            font-weight: bold;
-            font-size: 0.9rem;
-            width: fit-content;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-        }
-
-        .mock-block.hat {
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
+        .blocklyFlyoutBackground { fill: #050505 !important; fill-opacity: 0.95 !important; }
+        .blocklyToolboxBackground { background-color: #050505 !important; border-right: 1px solid #1f1f1f !important; }
+        .blocklyTreeLabel { color: #ffffff !important; font-family: 'Segoe UI', sans-serif !important; font-weight: 600 !important; }
+        .blocklyMainBackground { stroke: none !important; fill: #000000 !important; }
     </style>
 </head>
 <body>
 
-    <header class="eco-header">
-        <div class="tabs-container">
-            <button class="tab-btn active" id="btnLive" onclick="switchView('live')">💻 Mod Studio Live</button>
-            <button class="tab-btn" id="btnStudioMod" onclick="switchView('studio-mod')">🐧 Studio Mod (PenguinMod Fork)</button>
+    <div class="auth-blockade-curtain" id="authGateCurtain">
+        <div class="auth-card">
+            <h2 style="margin: 0 0 0.5rem 0; font-size: 1.75rem;">Studio Mod Engine v6.0</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.5rem 0;">
+                Log in using your simulated Google Profile token to unlock execution threads and automatically provision local sandbox server routes.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <button class="google-login-btn" onclick="processIncomingGoogleToken(21)">🔑 Google Sign-In (Verified Age 18+)</button>
+                <button class="google-login-btn" style="background:#d4d4d8;" onclick="processIncomingGoogleToken(12)">🛡️ Google Sign-In (Verified Age Under 18)</button>
+            </div>
         </div>
-        <div style="font-weight: bold; font-size: 1.2rem;">Mod<span style="color: var(--user-accent)">Studio</span> Ecosystem</div>
+    </div>
+
+    <header class="workspace-header">
+        <div class="header-brand">Studio<span>Mod</span> <span style="font-size:0.75rem; background:rgba(255,255,255,0.05); padding:0.25rem 0.5rem; border-radius:4px; font-weight:normal; color:var(--text-muted);">Loaded Target Core</span></div>
+        
+        <div class="customizer-bar">
+            <div class="control-unit">
+                <label>Theme</label>
+                <input type="color" id="themeColorSelector" value="#10b981" oninput="compileDynamicThemeEnvironment()">
+            </div>
+            <div class="control-unit">
+                <label>Project Title</label>
+                <input type="text" id="projectTitleField" class="text-input" value="Modded Layout Build" style="width: 140px;">
+            </div>
+            <button class="btn-action" style="background: rgba(255,255,255,0.08); color: #fff;" onclick="saveActiveProjectData()">💾 Save Mod</button>
+            <button class="btn-action" onclick="shareProjectToCommunity()">🚀 Share Mod</button>
+            <button class="text-input" style="background:transparent; border-color:#ef4444; color:#ef4444; cursor:pointer; width:auto; font-weight:bold;" onclick="location.reload()">Disconnect</button>
+        </div>
     </header>
 
-    <main class="workspace-view active" id="viewLive">
-        <section class="sidebar-panel">
-            <h3>🎛️ Live Integration Dashboard</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Simultaneously review analytics and launch developer hubs side-by-side.</p>
-            
-            <div class="control-group">
-                <label>External Tool Launchpad</label>
-                <div class="platform-grid">
-                    <button class="platform-btn" onclick="window.open('https://scratch.mit.edu', '_blank')">Scratch</button>
-                    <button class="platform-btn" onclick="window.open('https://turbowarp.org', '_blank')">TurboWarp</button>
-                    <button class="platform-btn" onclick="window.open('https://studio.penguinmod.com', '_blank')">PenguinMod</button>
-                    <button class="platform-btn" onclick="window.open('https://scratchviews.com', '_blank')">Scratch Views</button>
-                </div>
-                <button class="platform-btn" style="width:100%; margin-top:0.5rem;" onclick="window.open('https://scratchstats.com', '_blank')">📊 Open ScratchStats</button>
-            </div>
-            
-            <hr style="border: 0; border-top: 1px solid #27272a; margin: 0;">
-            
-            <div class="control-group">
-                <label>Active Payload Status</label>
-                <textarea class="text-input" style="height: 120px; font-family: monospace; font-size: 0.8rem;" readonly>
-{
-  "modStudioLive": true,
-  "loadedModules": ["ScratchViews", "ScratchStats", "TurboWarp"]
-}</textarea>
-            </div>
-        </section>
+    <nav class="hub-tabs">
+        <button class="hub-tab-btn active" id="tabBtnEditor" onclick="switchPanel('editor')">🛠️ Workspace Editor</button>
+        <button class="hub-tab-btn" id="tabBtnExplore" onclick="switchPanel('explore'); renderSharedFeed();">🌍 Explore System Feed</button>
+        <button class="hub-tab-btn" id="tabBtnProfile" onclick="switchPanel('profile'); loadUserProfileData();">👤 My Profile Node</button>
+    </nav>
 
-        <section class="preview-board">
-            <h2>System Workbench Feed</h2>
-            <p style="color: var(--text-muted); margin: 0;">You are currently modifying the live operational parameters of the baseline Mod Studio container layout wrapper.</p>
-            <div style="background: #050505; border: 1px solid #27272a; height: 100%; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-style: italic;">
-                [ Mod Studio Engine System Live Terminal Buffer Preview ]
+    <main class="app-workspace">
+        
+        <div class="panel-view active" id="viewEditor">
+            <div class="editor-split-grid">
+                <div id="blocklyCanvasContainer"></div>
+                
+                <aside class="stage-and-assets-sidebar">
+                    <div class="stage-runtime-navbar">
+                        <span style="font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted);">Stage Display View</span>
+                        <div class="playback-controls">
+                            <button class="control-glyph-btn" style="color: #22c55e;" title="Play Script" onclick="triggerStagePlayback('play')">🟢</button>
+                            <button class="control-glyph-btn" style="color: #eab308;" title="Pause Script" onclick="triggerStagePlayback('pause')">🟡</button>
+                            <button class="control-glyph-btn" style="color: #ef4444;" title="Stop Script" onclick="triggerStagePlayback('stop')">🛑</button>
+                        </div>
+                    </div>
+                    <div class="simulation-stage-screen" id="simulatedStageBackground">
+                        <div class="simulated-actor" id="simulatedSpriteElement">🐈</div>
+                    </div>
+
+                    <div class="asset-management-suite">
+                        <div class="control-group">
+                            <label>Background Canvas Node</label>
+                            <div class="asset-tray-row">
+                                <div class="asset-thumb-card selected" id="bg_dark" onclick="selectStageAsset('background', 'dark')">Pure Void</div>
+                                <div class="asset-thumb-card" id="bg_grid" onclick="selectStageAsset('background', 'grid')">Matrix Grid</div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                            <label>Active Sprite Registries</label>
+                            <div class="asset-tray-row">
+                                <div class="asset-thumb-card selected" id="sprite_cat" onclick="selectStageAsset('sprite', 'cat')">Cat (Default)</div>
+                                <div class="asset-thumb-card" id="sprite_cube" onclick="selectStageAsset('sprite', 'cube')">Data Block</div>
+                                <div class="asset-thumb-card" id="sprite_ghost" onclick="selectStageAsset('sprite', 'ghost')">Phantom</div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
             </div>
-        </section>
+        </div>
+
+        <div class="panel-view" id="viewExplore" style="overflow-y:auto;">
+            <div class="community-container">
+                <h2>Shared Community Mod Pipelines</h2>
+                <div class="meta-grid" id="exploreGrid"></div>
+
+                <div style="background: var(--panel-card); border: 1px solid #1f1f1f; padding: 2rem; border-radius: 8px; margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <h3>Public Channel Feed Comments</h3>
+                    <div class="comment-thread-box" id="commentsHistoryStack"></div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="commentInputField" class="text-input" placeholder="Append comment message payload to network loop..." style="flex-grow: 1;">
+                        <button class="btn-action" onclick="postGlobalNetworkComment()">Send Comment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-view" id="viewProfile" style="overflow-y:auto;">
+            <div class="community-container" style="max-width: 650px;">
+                <div style="background: var(--panel-card); border: 1px solid #1f1f1f; padding: 2.5rem; border-radius: 12px; display:flex; flex-direction:column; gap:1.5rem;">
+                    <h2 style="margin:0;">Profile Node Settings</h2>
+                    <div class="control-group">
+                        <label>Custom Profile Username</label>
+                        <input type="text" id="profileUserField" class="text-input" style="font-size:1.1rem; font-weight:bold;" oninput="applyAccountModification()">
+                    </div>
+                    <div class="control-group">
+                        <label>Profile Biography</label>
+                        <textarea id="profileBioField" class="text-input" style="height:100px; font-family:inherit; resize:none;" oninput="applyAccountModification()"></textarea>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; background:#000; padding:1rem; border-radius:6px; border:1px solid #1f1f1f;">
+                        <div>
+                            <div style="font-size:0.8rem; text-transform:uppercase; color:var(--text-muted); font-weight:700;">Connection Stream Route</div>
+                            <div id="profileNetworkLabel" style="font-weight:bold; margin-top:0.25rem;">Handshake loop...</div>
+                        </div>
+                        <button class="btn-action-outline" id="globalFollowBtn" onclick="toggleNetworkFollowGraph()">Follow Account</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="server-status-ribbon" id="serverTypeRibbon">Offline Engine Sync</div>
     </main>
 
-    <main class="workspace-view" id="viewStudioMod">
-        <section class="sidebar-panel">
-            <h3>🎨 Fork Customizer Matrix</h3>
-            
-            <div class="control-group">
-                <label>🔐 Google Account Simulation</label>
-                <select class="text-input" id="ageProfileSelector" onchange="processAgeMatrix()">
-                    <option value="18">Sign in with Google (Adult Account - Age 18+)</option>
-                    <option value="12">Sign in with Google (Child Account - Under 18)</option>
-                </select>
-            </div>
-
-            <div class="control-group">
-                <label>🎨 Theme Accent Color</label>
-                <div class="color-picker-row">
-                    <input type="color" id="themeColorAccent" value="#10b981" oninput="processAgeMatrix()">
-                    <span style="font-family: monospace;" id="accentHexLabel">#10b981</span>
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label>👤 Custom Username</label>
-                <input type="text" class="text-input" id="usernameInput" value="Dev_Hacker_99" oninput="processAgeMatrix()">
-            </div>
-            
-            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
-                Studio Mod runs an unmoderated custom variant of the PenguinMod core engine allowing full chat freedom for verified developer accounts.
-            </p>
-        </section>
-
-        <section class="preview-board" id="studioModContainer">
-            <span class="age-badge" id="ageBadgeDisplay">Loading Profile Node...</span>
-            <h2 style="margin:0;">Studio Mod <span style="font-size: 0.9rem; font-weight: normal; color: var(--text-muted);">v4.0 (PenguinMod Custom Fork)</span></h2>
-            
-            <p id="systemModeDisclaimer">Processing workspace parameters...</p>
-
-            <div class="mock-blockly-canvas">
-                <div class="mock-block hat">when stop sign clicked</div>
-                <div class="mock-block">current [hour v] of time blocks</div>
-                <div class="mock-block" style="background-color: rgba(255,255,255,0.05);">
-                    say [ <span id="usernameLabelDisplay" style="color: var(--user-accent);">User</span> ] to active network chat
-                </div>
-            </div>
-        </section>
-    </main>
+    <xml id="blocklyToolboxStructure" style="display: none">
+        <category name="Motion" colour="#4C97FF">
+            <block type="motion_movesteps"><value name="STEPS"><shadow type="math_number"><field name="NUM">10</field></shadow></value></block>
+        </category>
+        <category name="Looks" colour="#9966FF">
+            <block type="looks_say"><value name="MESSAGE"><shadow type="text"><field name="TEXT">Studio Mod Active</field></shadow></value></block>
+        </category>
+        <category name="Events" colour="#FFBF00" id="eventsTargetNode"></category>
+        <category name="Control" colour="#FFAB19" id="controlTargetNode"></category>
+    </xml>
 
     <script>
-        // Tab switcher function
-        function switchView(target) {
-            document.getElementById("viewLive").classList.remove("active");
-            document.getElementById("viewStudioMod").classList.remove("active");
-            document.getElementById("btnLive").classList.remove("active");
-            document.getElementById("btnStudioMod").classList.remove("active");
+        let primaryBlocklyWorkspace = null;
+        let stageExecutionInterval = null;
+        let currentActorTransformX = 0;
+        
+        let authenticatedUserMetadata = { 
+            active: false, validatedAge: null, routingChannel: null, 
+            username: "ModDev_Core", bio: "Customizing raw scratch frameworks.", followingActive: false 
+        };
 
-            if(target === 'live') {
-                document.getElementById("viewLive").classList.add("active");
-                document.getElementById("btnLive").classList.add("active");
-            } else {
-                document.getElementById("viewStudioMod").classList.add("active");
-                document.getElementById("btnStudioMod").classList.add("active");
-                processAgeMatrix(); // Automatically generate profile data updates
+        function processIncomingGoogleToken(ageParam) {
+            authenticatedUserMetadata.active = true;
+            authenticatedUserMetadata.validatedAge = ageParam;
+            authenticatedUserMetadata.routingChannel = ageParam >= 18 ? "UNRESTRICTED_DEV_SERVER" : "CENSORED_KIDS_SERVER";
+            
+            if(ageParam < 18) { authenticatedUserMetadata.username = "SafeCoder_Guest"; }
+
+            document.getElementById("authGateCurtain").style.display = "none";
+            document.getElementById("profileUserField").value = authenticatedUserMetadata.username;
+            document.getElementById("profileBioField").value = authenticatedUserMetadata.bio;
+
+            compileDynamicThemeEnvironment();
+            initializeBlocklyEngineCore();
+            applyAccountModification();
+            loadCachedCommentsStream();
+        }
+
+        function switchPanel(panelId) {
+            const panels = ['editor', 'explore', 'profile'];
+            panels.forEach(id => {
+                document.getElementById(`view${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.remove('active');
+                document.getElementById(`tabBtn${id.charAt(0).toUpperCase() + id.slice(1)}`).classList.remove('active');
+            });
+            document.getElementById(`view${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.add('active');
+            document.getElementById(`tabBtn${panelId.charAt(0).toUpperCase() + panelId.slice(1)}`).classList.add('active');
+        }
+
+        function compileDynamicThemeEnvironment() {
+            const pickedColorHex = document.getElementById("themeColorSelector").value;
+            document.documentElement.style.setProperty('--user-accent', pickedColorHex);
+            if (primaryBlocklyWorkspace) Blockly.WorkspaceSvg.prototype.updateToolbox(document.getElementById('blocklyToolboxStructure'));
+        }
+
+        function initializeBlocklyEngineCore() {
+            const pickedAccent = document.getElementById("themeColorSelector").value;
+            Blockly.Blocks['event_whenstopsignclicked'] = { init: function() { this.jsonInit({ "message0": "when stop sign clicked 🛑", "nextStatement": null, "colour": "#FFBF00", "hat": true }); } };
+            Blockly.Blocks['sensing_modstudiotime'] = { init: function() { this.jsonInit({ "message0": "current time [ %1 ]", "args0": [{ "type": "field_dropdown", "name": "TIME_UNIT", "options": [["hour","hour"], ["minute","minute"]] }], "output": "Number", "colour": pickedAccent }); } };
+
+            document.getElementById("eventsTargetNode").innerHTML = `
+                <block type="event_whenstopsignclicked"></block>
+                <block type="control_start_as_clone"></block>
+                <block type="control_create_clone_of"></block>
+                <block type="control_delete_this_clone"></block>
+            `;
+
+            const customTimeCategoryXml = document.createElement('category');
+            customTimeCategoryXml.setAttribute('name', 'Time Blocks');
+            customTimeCategoryXml.setAttribute('colour', pickedAccent);
+            customTimeCategoryXml.innerHTML = `<block type="sensing_modstudiotime"></block>`;
+            document.getElementById("blocklyToolboxStructure").appendChild(customTimeCategoryXml);
+
+            primaryBlocklyWorkspace = Blockly.inject('blocklyCanvasContainer', {
+                toolbox: document.getElementById('blocklyToolboxStructure'),
+                trashcan: true
+            });
+        }
+
+        // Live Stage Playback Frame Controller
+        function triggerStagePlayback(actionState) {
+            const sprite = document.getElementById("simulatedSpriteElement");
+            clearInterval(stageExecutionInterval);
+
+            if(actionState === 'play') {
+                alert("🟢 Executing live abstract Blockly source array commands...");
+                stageExecutionInterval = setInterval(() => {
+                    currentActorTransformX = (currentActorTransformX + 15) % 180;
+                    sprite.style.transform = `translateX(${currentActorTransformX}px)`;
+                }, 300);
+            } else if (actionState === 'pause') {
+                alert("🟡 Pausing timeline evaluation loops.");
+            } else if (actionState === 'stop') {
+                currentActorTransformX = 0;
+                sprite.style.transform = `translateX(0px)`;
+                alert("🛑 Terminating compiler threads. Stage runtime pipeline coordinates zeroed out.");
             }
         }
 
-        // Core Age Gating Censor & Accent Compilation Engine
-        function processAgeMatrix() {
-            const ageSelected = parseInt(document.getElementById("ageProfileSelector").value);
-            const rawAccentColor = document.getElementById("themeColorAccent").value;
-            let currentUsername = document.getElementById("usernameInput").value;
+        // Sprite asset and background asset editors
+        function selectStageAsset(assetType, assetKey) {
+            const sprite = document.getElementById("simulatedSpriteElement");
+            const stage = document.getElementById("simulatedStageBackground");
 
-            // Sync visual hex indicators dynamically across layout layers
-            document.documentElement.style.setProperty('--user-accent', rawAccentColor);
-            document.getElementById("accentHexLabel").innerText = rawAccentColor.toUpperCase();
-
-            // Profanity array setup to handle chat moderation filters
-            const forbiddenWords = [/damn/gi, /hell/gi, /crap/gi, /ass/gi];
-            let isProfane = forbiddenWords.some(regex => regex.test(currentUsername));
-
-            const badgeElement = document.getElementById("ageBadgeDisplay");
-            const disclaimerElement = document.getElementById("systemModeDisclaimer");
-            const chatDisplay = document.getElementById("usernameLabelDisplay");
-
-            if (ageSelected < 18) {
-                // RUN THE KIDS SYSTEM MATRIX
-                badgeElement.className = "age-badge badge-kids";
-                badgeElement.innerText = "🛡️ Kids Edition Active";
-                disclaimerElement.innerHTML = "<strong>Safe Workspace Mode:</strong> Swear words are systematically filtered on this platform profile layout. Built-in customization parameters are strictly moderated.";
+            if(assetType === 'sprite') {
+                document.querySelectorAll("[id^='sprite_']").forEach(el => el.classList.remove('selected'));
+                document.getElementById(`sprite_${assetKey}`).classList.add('selected');
                 
-                // Scrub incoming text fields
-                forbiddenWords.forEach(regex => {
-                    currentUsername = currentUsername.replace(regex, "****");
-                });
-                chatDisplay.innerText = `${currentUsername} (Filtered Sandbox Speech Mode)`;
+                if(assetKey === 'cat') sprite.innerText = "🐈";
+                if(assetKey === 'cube') sprite.innerText = "📦";
+                if(assetKey === 'ghost') sprite.innerText = "👻";
             } else {
-                // RUN THE UNRESTRICTED 18+ MATRIX (Customization already pre-built)
-                badgeElement.className = "age-badge badge-adult";
-                badgeElement.innerText = "🚀 18+ Developer Build Unlocked";
-                disclaimerElement.innerHTML = "<strong>Unrestricted Workspace Mod:</strong> Full access granted to developer tool pipelines. Swearing is permitted in the environment log. The customization controls have been fully integrated into the code layer natively.";
-                chatDisplay.innerText = `${currentUsername} (Uncensored Developer Matrix)`;
+                document.querySelectorAll("[id^='bg_']").forEach(el => el.classList.remove('selected'));
+                document.getElementById(`bg_${assetKey}`).classList.add('selected');
+
+                if(assetKey === 'dark') stage.style.background = "#111";
+                if(assetKey === 'grid') stage.style.background = "radial-gradient(circle, #222 10%, transparent 11%)", stage.style.backgroundSize = "15px 15px";
             }
         }
 
-        // Initialize execution setup parameters on load window hook
-        window.onload = function() {
-            processAgeMatrix();
+        // Account Modification Profiler Protection Logic Layer
+        function applyAccountModification() {
+            if (!authenticatedUserMetadata.active) return;
+
+            let nameVal = document.getElementById("profileUserField").value;
+            let bioVal = document.getElementById("profileBioField").value;
+            const ribbon = document.getElementById("serverTypeRibbon");
+            const profanityFilter = [/damn/gi, /hell/gi, /crap/gi, /ass/gi];
+
+            if (authenticatedUserMetadata.routingChannel === "CENSORED_KIDS_SERVER") {
+                ribbon.className = "server-status-ribbon server-kids";
+                ribbon.innerText = "🔒 Kids Server Active";
+                document.getElementById("profileNetworkLabel").innerText = "Sandboxed Client-Side Segment";
+                
+                profanityFilter.forEach(regex => {
+                    nameVal = nameVal.replace(regex, "****");
+                    bioVal = bioVal.replace(regex, "****");
+                });
+                document.getElementById("profileUserField").value = nameVal;
+                document.getElementById("profileBioField").value = bioVal;
+            } else {
+                ribbon.className = "server-status-ribbon server-adult";
+                ribbon.innerText = "🔓 Unrestricted Dev Server";
+                document.getElementById("profileNetworkLabel").innerText = "Total Access Cluster Loop Node";
+            }
+            authenticatedUserMetadata.username = nameVal;
+            authenticatedUserMetadata.bio = bioVal;
+        }
+
+        function toggleNetworkFollowGraph() {
+            const btn = document.getElementById("globalFollowBtn");
+            authenticatedUserMetadata.followingActive = !authenticatedUserMetadata.followingActive;
+            btn.innerText = authenticatedUserMetadata.followingActive ? "✨ Following Profile" : "Follow Account";
+            btn.style.borderColor = authenticatedUserMetadata.followingActive ? "var(--user-accent)" : "#222";
+        }
+
+        // Project Serialization Filesystem Methods
+        function saveActiveProjectData() {
+            if(!primaryBlocklyWorkspace) return;
+            const title = document.getElementById("projectTitleField").value;
+            const xml = Blockly.Xml.domToText(Blockly.Xml.workspaceToDom(primaryBlocklyWorkspace));
+            const payload = { title: title, xml: xml, author: authenticatedUserMetadata.username, channel: authenticatedUserMetadata.routingChannel };
+            
+            localStorage.setItem(`modstudio_saved_cache`, JSON.stringify(payload));
+            alert(`💾 Project asset matrix saved to local storage space.`);
+        }
+
+        function shareProjectToCommunity() {
+            saveActiveProjectData();
+            const raw = JSON.parse(localStorage.getItem(`modstudio_saved_cache`));
+            let db = JSON.parse(localStorage.getItem("modstudio_shared_db") || "[]");
+            db.push(raw);
+            localStorage.setItem("modstudio_shared_db", JSON.stringify(db));
+            alert("🚀 System asset payload broadcasted into cloud network segments.");
+        }
+
+        function renderSharedFeed() {
+            const container = document.getElementById("exploreGrid");
+            container.innerHTML = "";
+            let db = JSON.parse(localStorage.getItem("modstudio_shared_db") || "[]");
+            let filtered = db.filter(p => p.channel === authenticatedUserMetadata.routingChannel);
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<p style='color:var(--text-muted); font-style:italic;'>No custom items found on this platform segment loop layer.</p>`;
+                return;
+            }
+
+            filtered.forEach(project => {
+                const card = document.createElement('div');
+                card.className = "community-card";
+                card.innerHTML = `
+                    <div class="card-title">${project.title}</div>
+                    <div class="card-author">Developer Hash: ${project.author}</div>
+                    <button class="btn-action" style="margin-top:0.5rem;" onclick="loadSharedProject('${escape(project.xml)}')">Inject Source Tree</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function loadSharedProject(xmlStr) {
+            primaryBlocklyWorkspace.clear();
+            Blockly.Xml.domToWorkspace(Blockly.utils.xml.textToDom(unescape(xmlStr)), primaryBlocklyWorkspace);
+            switchPanel('editor');
+        }
+
+        // Segregated Comment Pipeline Management Logic
+        function postGlobalNetworkComment() {
+            let inputMsg = document.getElementById("commentInputField").value;
+            if(!inputMsg) return;
+
+            if(authenticatedUserMetadata.routingChannel === "CENSORED_KIDS_SERVER") {
+                [/damn/gi, /hell/gi, /crap/gi, /ass/gi].forEach(r => inputMsg = inputMsg.replace(r, "****"));
+            }
+
+            let thread = JSON.parse(localStorage.getItem(`comments_${authenticatedUserMetadata.routingChannel}`) || "[]");
+            thread.push({ user: authenticatedUserMetadata.username, message: inputMsg });
+            localStorage.setItem(`comments_${authenticatedUserMetadata.routingChannel}`, JSON.stringify(thread));
+            
+            document.getElementById("commentInputField").value = "";
+            loadCachedCommentsStream();
+        }
+
+        function loadCachedCommentsStream() {
+            const container = document.getElementById("commentsHistoryStack");
+            container.innerHTML = "";
+            let thread = JSON.parse(localStorage.getItem(`comments_${authenticatedUserMetadata.routingChannel}`) || "[]");
+
+            if(thread.length === 0) {
+                container.innerHTML = `<div class='comment-node' style='color:var(--text-muted); border:none;'>No transaction logs written to this segment's comment logs yet.</div>`;
+                return;
+            }
+
+            thread.forEach(c => {
+                const item = document.createElement('div');
+                item.className = "comment-node";
+                item.innerHTML = `<strong style="color:var(--user-accent);">${c.user}:</strong> <span>${c.message}</span>`;
+                container.appendChild(item);
+            });
         }
     </script>
 </body>
