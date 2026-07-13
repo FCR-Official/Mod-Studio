@@ -319,3 +319,67 @@ background-position:center;
 padding:20px;
 
 }
+.home-icon {
+
+width:50px;
+
+height:50px;
+
+cursor:pointer;
+
+object-fit:contain;
+
+}
+
+
+
+.project-create {
+
+background:#111;
+
+border:2px solid #2cf27b;
+
+padding:20px;
+
+border-radius:15px;
+
+}
+
+
+
+.project-create input,
+.project-create textarea {
+
+display:block;
+
+width:90%;
+
+margin:10px;
+
+padding:10px;
+
+background:#222;
+
+color:white;
+
+border:1px solid #2cf27b;
+
+border-radius:8px;
+
+}
+
+
+
+.project-card {
+
+background:#111;
+
+border:2px solid #2cf27b;
+
+border-radius:15px;
+
+padding:20px;
+
+margin:15px 0;
+
+}
