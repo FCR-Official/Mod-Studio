@@ -117,7 +117,21 @@ behavior:"smooth"
 });
 
 }
+let scan = Firewall.scan(
+    name + " " + description
+);
 
+
+if (!scan.safe) {
+
+    alert(
+        "Project blocked:\n\n" +
+        scan.warnings.join("\n")
+    );
+
+    return;
+
+}
 
 
 displayProjects();
