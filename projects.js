@@ -132,6 +132,13 @@ if (!scan.safe) {
     return;
 
 }
+localStorage.setItem(
+    "projects",
+    JSON.stringify(projects)
+);
+
+displayProjects();
+const projectList = document.getElementById("projectList");
 
 
 displayProjects();
