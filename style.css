@@ -248,3 +248,74 @@ textarea {
 height:100px;
 
 }
+.studio-create {
+
+background:#111;
+
+border:2px solid #2cf27b;
+
+padding:20px;
+
+border-radius:15px;
+
+margin-bottom:25px;
+
+}
+
+
+.studio-create input,
+.studio-create textarea {
+
+display:block;
+
+width:90%;
+
+margin:10px;
+
+padding:10px;
+
+background:#222;
+
+color:white;
+
+border:1px solid #2cf27b;
+
+border-radius:8px;
+
+}
+
+
+
+.studio-card {
+
+background:#111;
+
+border:2px solid #2cf27b;
+
+border-radius:15px;
+
+overflow:hidden;
+
+margin:15px 0;
+
+}
+
+
+
+.studio-banner {
+
+height:120px;
+
+background-size:cover;
+
+background-position:center;
+
+}
+
+
+
+.studio-content {
+
+padding:20px;
+
+}
