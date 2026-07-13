@@ -1,3 +1,18 @@
+let scan = Firewall.scan(
+    name + " " + description
+);
+
+
+if (!scan.safe){
+
+    alert(
+        "Studio blocked:\n\n" +
+        scan.warnings.join("\n")
+    );
+
+    return;
+
+}
 let studios =
 JSON.parse(
 localStorage.getItem("studios")
