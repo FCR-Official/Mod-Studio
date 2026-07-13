@@ -189,5 +189,12 @@ studioList.appendChild(card);
 }
 
 
+let scan = Firewall.scan(
+    name + " " + description
+);
 
+if (!scan.safe) {
+    alert(scan.warnings.join("\n"));
+    return;
+}
 displayStudios();
